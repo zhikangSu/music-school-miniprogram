@@ -1,0 +1,92 @@
+// ========== /pages/admin/dashboard.wxml ==========
+`<view class="container">
+  <!-- 统计卡片 -->
+  <view class="stats-grid">
+    <view class="stat-card">
+      <view class="stat-icon">👥</view>
+      <view class="stat-info">
+        <view class="stat-value">{{stats.totalStudents}}</view>
+        <view class="stat-label">总学生数</view>
+      </view>
+    </view>
+    
+    <view class="stat-card">
+      <view class="stat-icon">👨‍🏫</view>
+      <view class="stat-info">
+        <view class="stat-value">{{stats.totalTeachers}}</view>
+        <view class="stat-label">总教师数</view>
+      </view>
+    </view>
+    
+    <view class="stat-card">
+      <view class="stat-icon">📅</view>
+      <view class="stat-info">
+        <view class="stat-value">{{stats.todayAppointments}}</view>
+        <view class="stat-label">今日预约</view>
+      </view>
+    </view>
+    
+    <view class="stat-card">
+      <view class="stat-icon">💰</view>
+      <view class="stat-info">
+        <view class="stat-value">¥{{stats.monthRevenue}}</view>
+        <view class="stat-label">本月收入</view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 快捷操作 -->
+  <view class="quick-actions">
+    <view class="action-item" bindtap="goToSalary">
+      <view class="action-icon">💳</view>
+      <view class="action-name">工资结算</view>
+    </view>
+    <view class="action-item" bindtap="goToCourseManage">
+      <view class="action-icon">📚</view>
+      <view class="action-name">课程管理</view>
+    </view>
+    <view class="action-item" bindtap="goToTeacherManage">
+      <view class="action-icon">👨‍🏫</view>
+      <view class="action-name">教师管理</view>
+    </view>
+    <view class="action-item" bindtap="goToStudentManage">
+      <view class="action-icon">👥</view>
+      <view class="action-name">学生管理</view>
+    </view>
+  </view>
+  
+  <!-- 最近预约 -->
+  <view class="recent-section">
+    <view class="section-header">
+      <text class="section-title">最近预约</text>
+      <text class="section-more" bindtap="goToAllAppointments">查看全部 ></text>
+    </view>
+    
+    <view class="appointment-list">
+      <view class="appointment-item" 
+            wx:for="{{recentAppointments}}" 
+            wx:key="id"
+            bindtap="viewAppointmentDetail"
+            data-id="{{item.id}}">
+        <view class="appointment-info">
+          <view class="appointment-main">
+            <text class="student-name">{{item.student_name}}</text>
+            <text class="course-name">{{item.course_name}}</text>
+          </view>
+          <view class="appointment-meta">
+            <text class="teacher-name">{{item.teacher_name}}</text>
+            <text class="appointment-time">{{item.appointment_date}} {{item.start_time}}</text>
+          </view>
+        </view>
+        <view class="appointment-status status-{{item.status}}">
+          {{item.status === 'pending' ? '待确认' : '已确认'}}
+        </view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 导出按钮 -->
+  <view class="export-section">
+    <button class="export-btn" bindtap="exportData">导出数据报表</button>
+  </view>
+</view>`

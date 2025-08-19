@@ -1,0 +1,49 @@
+// ========== /pages/my/index.wxml ==========
+`<view class="my-container">
+  <!-- 用户信息 -->
+  <view class="user-header">
+    <image class="user-avatar" src="{{userInfo.avatar || '/images/default-avatar.png'}}"></image>
+    <view class="user-info">
+      <view class="user-name">{{userInfo.name || '用户'}}</view>
+      <view class="user-role">
+        {{role === 'teacher' ? '教师' : role === 'admin' ? '管理员' : '学生'}}
+      </view>
+    </view>
+  </view>
+  
+  <!-- 统计信息 -->
+  <view class="stats-card" wx:if="{{role === 'student'}}">
+    <view class="stat-item">
+      <view class="stat-value">{{stats.totalCourses}}</view>
+      <view class="stat-label">总课程</view>
+    </view>
+    <view class="stat-item">
+      <view class="stat-value">{{stats.totalHours}}</view>
+      <view class="stat-label">学习时长</view>
+    </view>
+    <view class="stat-item">
+      <view class="stat-value">{{stats.totalAmount}}</view>
+      <view class="stat-label">总消费</view>
+    </view>
+  </view>
+  
+  <!-- 功能菜单 -->
+  <view class="menu-list">
+    <view class="menu-item" 
+          wx:for="{{menuItems}}" 
+          wx:key="id"
+          bindtap="navigateTo"
+          data-url="{{item.url}}">
+      <view class="menu-left">
+        <text class="menu-icon">{{item.icon}}</text>
+        <text class="menu-title">{{item.title}}</text>
+      </view>
+      <text class="menu-arrow">></text>
+    </view>
+  </view>
+  
+  <!-- 退出按钮 -->
+  <view class="logout-section">
+    <button class="logout-btn" bindtap="logout">退出登录</button>
+  </view>
+</view>`

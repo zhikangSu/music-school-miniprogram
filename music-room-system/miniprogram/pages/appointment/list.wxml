@@ -1,0 +1,66 @@
+// ========== /pages/appointment/list.wxml ==========
+`<view class="container">
+  <!-- 标签栏 -->
+  <view class="tabs">
+    <view class="tab-item {{activeTab === index ? 'active' : ''}}" 
+          wx:for="{{tabs}}" 
+          wx:key="index"
+          bindtap="switchTab"
+          data-index="{{index}}">
+      {{item}}
+    </view>
+  </view>
+  
+  <!-- 预约列表 -->
+  <view class="appointment-list">
+    <view class="appointment-card" wx:for="{{filteredAppointments}}" wx:key="id">
+      <view class="appointment-header">
+        <view class="course-info">
+          <text class="course-name">{{item.course_name}}</text>
+          <text class="teacher-name">{{item.teacher_name}}老师</text>
+        </view>
+        <view class="status status-{{item.status}}">
+          {{item.status === 'pending' ? '待确认' : ''}}
+          {{item.status === 'confirmed' ? '已确认' : ''}}
+          {{item.status === 'completed' ? '已完成' : ''}}
+          {{item.status === 'cancelled' ? '已取消' : ''}}
+        </view>
+      </view>
+      
+      <view class="appointment-body">
+        <view class="info-item">
+          <text class="info-label">上课时间</text>
+          <text class="info-value">{{item.appointment_date}} {{item.start_time}}-{{item.end_time}}</text>
+        </view>
+        <view class="info-item">
+          <text class="info-label">课程费用</text>
+          <text class="info-value price">¥{{item.price}}</text>
+        </view>
+        <view class="info-item" wx:if="{{item.notes}}">
+          <text class="info-label">备注</text>
+          <text class="info-value">{{item.notes}}</text>
+        </view>
+      </view>
+      
+      <view class="appointment-footer" wx:if="{{item.status !== 'cancelled' && item.status !== 'completed'}}">
+        <button class="action-btn" wx:if="{{item.status === 'pending'}}" 
+                bindtap="cancelAppointment" data-id="{{item.id}}">
+          取消预约
+        </button>
+        <button class="action-btn primary" wx:if="{{item.status === 'confirmed'}}"
+                bindtap="confirmComplete" data-id="{{item.id}}">
+          确认完成
+        </button>
+        <button class="action-btn" bindtap="makePhoneCall" data-phone="{{item.teacher_phone}}">
+          联系老师
+        </button>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 空状态 -->
+  <view wx:if="{{filteredAppointments.length === 0}}" class="empty">
+    <text class="empty-icon">📅</text>
+    <text class="empty-text">暂无预约记录</text>
+  </view>
+</view>`

@@ -1,0 +1,81 @@
+// ========== /pages/teacher/schedule.wxss ==========
+`.week-selector {
+  display: flex;
+  background: white;
+  padding: 20rpx;
+  margin-bottom: 20rpx;
+}
+
+.week-item {
+  flex: 1;
+  text-align: center;
+  padding: 20rpx 10rpx;
+  border-radius: 15rpx;
+  transition: all 0.3s;
+}
+
+.week-item.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.week-day {
+  display: block;
+  font-size: 24rpx;
+  margin-bottom: 10rpx;
+}
+
+.week-date {
+  display: block;
+  font-size: 32rpx;
+  font-weight: bold;
+}
+
+.time-section {
+  background: white;
+  padding: 30rpx;
+  margin: 20rpx;
+  border-radius: 20rpx;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 30rpx;
+}
+
+.time-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20rpx;
+}
+
+.time-slot {
+  padding: 20rpx;
+  text-align: center;
+  background: #f5f5f5;
+  border-radius: 10rpx;
+  font-size: 26rpx;
+  color: #333;
+  transition: all 0.3s;
+}
+
+.time-slot.selected {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.save-section {
+  padding: 20rpx 40rpx 40rpx;
+}
+
+.save-btn {
+  width: 100%;
+  height: 90rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 45rpx;
+  font-size: 32rpx;
+  border: none;
+}`

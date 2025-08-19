@@ -1,0 +1,142 @@
+// ========== /pages/teacher/list.wxss ==========
+`.filter-bar {
+  background: white;
+  padding: 20rpx 30rpx;
+  border-bottom: 1rpx solid #eee;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.filter-picker {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10rpx 20rpx;
+  background: #f5f5f5;
+  border-radius: 10rpx;
+  font-size: 28rpx;
+}
+
+.arrow {
+  font-size: 20rpx;
+  color: #999;
+}
+
+.teacher-list {
+  padding: 20rpx;
+}
+
+.teacher-item {
+  margin-bottom: 20rpx;
+}
+
+.teacher-header {
+  display: flex;
+  margin-bottom: 20rpx;
+}
+
+.teacher-avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 60rpx;
+  margin-right: 20rpx;
+}
+
+.teacher-info {
+  flex: 1;
+}
+
+.teacher-name {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10rpx;
+}
+
+.teacher-tag {
+  display: inline-block;
+  padding: 4rpx 12rpx;
+  background: #4A90E2;
+  color: white;
+  font-size: 20rpx;
+  border-radius: 20rpx;
+  margin-left: 10rpx;
+}
+
+.teacher-desc {
+  font-size: 26rpx;
+  color: #666;
+  margin-bottom: 10rpx;
+}
+
+.teacher-rating {
+  display: flex;
+  align-items: center;
+}
+
+.stars {
+  font-size: 24rpx;
+  margin-right: 10rpx;
+}
+
+.score {
+  font-size: 26rpx;
+  color: #ff9500;
+}
+
+.teacher-intro {
+  font-size: 28rpx;
+  color: #666;
+  line-height: 1.5;
+  margin-bottom: 20rpx;
+}
+
+.teacher-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 20rpx;
+  border-top: 1rpx solid #eee;
+}
+
+.price {
+  display: flex;
+  flex-direction: column;
+}
+
+.price-label {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.price-value {
+  font-size: 36rpx;
+  color: #ff4444;
+  font-weight: bold;
+}
+
+.book-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 50rpx;
+  padding: 15rpx 40rpx;
+  font-size: 28rpx;
+}
+
+.loading, .empty {
+  text-align: center;
+  padding: 100rpx 0;
+  color: #999;
+}
+
+.empty-icon {
+  font-size: 100rpx;
+  display: block;
+  margin-bottom: 20rpx;
+}
+
+.empty-text {
+  font-size: 28rpx;
+}`

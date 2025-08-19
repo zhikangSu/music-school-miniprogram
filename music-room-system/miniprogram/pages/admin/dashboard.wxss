@@ -1,0 +1,164 @@
+// ========== /pages/admin/dashboard.wxss ==========
+`.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20rpx;
+  padding: 20rpx;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 20rpx;
+  padding: 30rpx;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 2rpx 10rpx rgba(0,0,0,0.05);
+}
+
+.stat-icon {
+  font-size: 60rpx;
+  margin-right: 20rpx;
+}
+
+.stat-info {
+  flex: 1;
+}
+
+.stat-value {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.stat-label {
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 5rpx;
+}
+
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20rpx;
+  padding: 20rpx;
+  background: white;
+  margin: 20rpx;
+  border-radius: 20rpx;
+}
+
+.action-item {
+  text-align: center;
+  padding: 20rpx;
+}
+
+.action-icon {
+  font-size: 50rpx;
+  margin-bottom: 10rpx;
+}
+
+.action-name {
+  font-size: 24rpx;
+  color: #666;
+}
+
+.recent-section {
+  margin: 20rpx;
+  background: white;
+  border-radius: 20rpx;
+  padding: 30rpx;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30rpx;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.section-more {
+  font-size: 26rpx;
+  color: #4A90E2;
+}
+
+.appointment-list {
+  margin-top: 20rpx;
+}
+
+.appointment-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.appointment-item:last-child {
+  border-bottom: none;
+}
+
+.appointment-info {
+  flex: 1;
+}
+
+.appointment-main {
+  display: flex;
+  gap: 20rpx;
+  margin-bottom: 10rpx;
+}
+
+.student-name {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.course-name {
+  font-size: 26rpx;
+  color: #666;
+  padding: 2rpx 10rpx;
+  background: #f0f0f0;
+  border-radius: 10rpx;
+}
+
+.appointment-meta {
+  display: flex;
+  gap: 20rpx;
+  font-size: 24rpx;
+  color: #999;
+}
+
+.appointment-status {
+  padding: 8rpx 20rpx;
+  border-radius: 20rpx;
+  font-size: 24rpx;
+}
+
+.status-pending {
+  background: #fff7e6;
+  color: #ff9500;
+}
+
+.status-confirmed {
+  background: #e6f7ff;
+  color: #1890ff;
+}
+
+.export-section {
+  padding: 20rpx 40rpx 40rpx;
+}
+
+.export-btn {
+  width: 100%;
+  height: 90rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 45rpx;
+  font-size: 32rpx;
+  border: none;
+}`

@@ -1,0 +1,79 @@
+// ========== /pages/teacher/detail.wxml ==========
+`<view class="container">
+  <!-- 教师信息头部 -->
+  <view class="teacher-header">
+    <image class="teacher-avatar" src="{{teacherInfo.avatar}}"></image>
+    <view class="teacher-info">
+      <view class="teacher-name">{{teacherInfo.name}}</view>
+      <view class="teacher-meta">
+        <text class="meta-item">{{teacherInfo.experience_years}}年教龄</text>
+        <text class="meta-item">{{teacherInfo.total_students}}位学生</text>
+      </view>
+      <view class="teacher-rating">
+        <text class="stars">⭐⭐⭐⭐⭐</text>
+        <text class="score">{{teacherInfo.rating}}分</text>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 标签页 -->
+  <view class="tabs">
+    <view class="tab-item {{activeTab === 0 ? 'active' : ''}}" 
+          bindtap="switchTab" data-index="0">简介</view>
+    <view class="tab-item {{activeTab === 1 ? 'active' : ''}}" 
+          bindtap="switchTab" data-index="1">课程</view>
+    <view class="tab-item {{activeTab === 2 ? 'active' : ''}}" 
+          bindtap="switchTab" data-index="2">评价</view>
+  </view>
+  
+  <!-- 内容区域 -->
+  <view class="content">
+    <!-- 简介标签页 -->
+    <view wx:if="{{activeTab === 0}}" class="intro-content">
+      <view class="section">
+        <view class="section-title">个人简介</view>
+        <view class="section-content">{{teacherInfo.introduction}}</view>
+      </view>
+      
+      <view class="section">
+        <view class="section-title">教学成就</view>
+        <view class="achievement-list">
+          <view class="achievement-item" wx:for="{{teacherInfo.achievements}}" wx:key="*this">
+            <text class="achievement-icon">✓</text>
+            <text class="achievement-text">{{item}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 课程标签页 -->
+    <view wx:if="{{activeTab === 1}}" class="course-content">
+      <view class="course-card" wx:for="{{courses}}" wx:key="id">
+        <view class="course-name">{{item.name}}</view>
+        <view class="course-meta">
+          <text class="course-duration">{{item.duration}}分钟/节</text>
+          <text class="course-price">¥{{item.price}}</text>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 评价标签页 -->
+    <view wx:if="{{activeTab === 2}}" class="review-content">
+      <view class="review-card" wx:for="{{reviews}}" wx:key="id">
+        <view class="review-header">
+          <text class="student-name">{{item.student_name}}</text>
+          <text class="review-date">{{item.date}}</text>
+        </view>
+        <view class="review-rating">
+          <text class="stars">⭐⭐⭐⭐⭐</text>
+        </view>
+        <view class="review-text">{{item.content}}</view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 底部预约按钮 -->
+  <view class="bottom-bar">
+    <button class="book-btn" bindtap="bookCourse">立即预约</button>
+  </view>
+</view>`

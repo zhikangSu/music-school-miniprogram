@@ -1,0 +1,71 @@
+// ========== /pages/index/index.wxml ==========
+`<view class="index-container">
+  <!-- 轮播图 -->
+  <swiper class="banner" autoplay indicator-dots circular>
+    <swiper-item wx:for="{{banners}}" wx:key="id">
+      <view class="banner-item">
+        <image src="{{item.image}}" mode="aspectFill" class="banner-image"></image>
+        <view class="banner-title">{{item.title}}</view>
+      </view>
+    </swiper-item>
+  </swiper>
+  
+  <!-- 统计数据 -->
+  <view class="stats-bar">
+    <view class="stat-item">
+      <view class="stat-value">{{stats.totalTeachers}}</view>
+      <view class="stat-label">专业教师</view>
+    </view>
+    <view class="stat-item">
+      <view class="stat-value">{{stats.totalStudents}}</view>
+      <view class="stat-label">在读学生</view>
+    </view>
+    <view class="stat-item">
+      <view class="stat-value">{{stats.totalCourses}}</view>
+      <view class="stat-label">累计课程</view>
+    </view>
+  </view>
+  
+  <!-- 课程类型 -->
+  <view class="section">
+    <view class="section-header">
+      <text class="section-title">选择课程</text>
+      <text class="section-more" bindtap="goToAllCourses">查看全部 ></text>
+    </view>
+    <view class="course-grid">
+      <view class="course-item" 
+            wx:for="{{courseTypes}}" 
+            wx:key="id"
+            bindtap="selectCourse"
+            data-id="{{item.id}}"
+            data-name="{{item.name}}">
+        <view class="course-icon">{{item.icon}}</view>
+        <view class="course-name">{{item.name}}</view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 推荐教师 -->
+  <view class="section">
+    <view class="section-header">
+      <text class="section-title">优秀教师</text>
+      <text class="section-more" bindtap="goToAllTeachers">查看全部 ></text>
+    </view>
+    <view class="teacher-list">
+      <view class="teacher-card" 
+            wx:for="{{teachers}}" 
+            wx:key="id"
+            bindtap="viewTeacher"
+            data-id="{{item.id}}">
+        <image class="teacher-avatar" src="{{item.avatar}}"></image>
+        <view class="teacher-info">
+          <view class="teacher-name">{{item.name}}</view>
+          <view class="teacher-meta">
+            <text class="teacher-exp">{{item.experience_years}}年教龄</text>
+            <text class="teacher-rating">⭐ {{item.rating || 5.0}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>`

@@ -1,0 +1,50 @@
+
+{
+  "pages": [
+    "pages/index/index",
+    "pages/login/login",
+    "pages/course/list",
+    "pages/teacher/list",
+    "pages/teacher/detail",
+    "pages/appointment/create",
+    "pages/appointment/list",
+    "pages/my/index",
+    "pages/admin/dashboard",
+    "pages/admin/salary",
+    "pages/teacher/schedule"
+  ],
+  "window": {
+    "navigationBarTitleText": "琴房管理系统",
+    "navigationBarBackgroundColor": "#4A90E2",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#f5f5f5"
+  },
+  "tabBar": {
+    "color": "#999",
+    "selectedColor": "#4A90E2",
+    "backgroundColor": "#fff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "images/home.png",
+        "selectedIconPath": "images/home-active.png"
+      },
+      {
+        "pagePath": "pages/appointment/list",
+        "text": "我的课程",
+        "iconPath": "images/course.png",
+        "selectedIconPath": "images/course-active.png"
+      },
+      {
+        "pagePath": "pages/my/index",
+        "text": "我的",
+        "iconPath": "images/my.png",
+        "selectedIconPath": "images/my-active.png"
+      }
+    ]
+  },
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

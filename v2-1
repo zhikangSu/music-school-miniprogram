@@ -1,0 +1,1449 @@
+// ==================== 额外页面文件 ====================
+
+// ========== /pages/teacher/detail.js ==========
+Page({
+  data: {
+    teacherId: null,
+    teacherInfo: null,
+    courses: [],
+    reviews: [],
+    activeTab: 0
+  },
+
+  onLoad(options) {
+    this.setData({ teacherId: options.id });
+    this.loadTeacherInfo();
+    this.loadCourses();
+    this.loadReviews();
+  },
+
+  loadTeacherInfo() {
+    wx.showLoading({ title: '加载中...' });
+    
+    // 模拟数据，实际应该调用API
+    this.setData({
+      teacherInfo: {
+        id: this.data.teacherId,
+        name: '李老师',
+        avatar: '/images/default-avatar.png',
+        experience_years: 5,
+        total_students: 128,
+        rating: 4.9,
+        introduction: '毕业于中央音乐学院，具有丰富的教学经验，擅长钢琴和声乐教学。注重培养学生的音乐素养和演奏技巧。',
+        achievements: [
+          '中央音乐学院硕士学位',
+          '全国钢琴比赛金奖指导教师',
+          '5年以上教学经验'
+        ]
+      }
+    });
+    
+    wx.hideLoading();
+  },
+
+  loadCourses() {
+    // 加载教师教授的课程
+    this.setData({
+      courses: [
+        { id: 1, name: '钢琴', price: 200, duration: 60 },
+        { id: 2, name: '声乐', price: 180, duration: 60 }
+      ]
+    });
+  },
+
+  loadReviews() {
+    // 加载评价
+    this.setData({
+      reviews: [
+        {
+          id: 1,
+          student_name: '张同学',
+          rating: 5,
+          content: '老师非常专业，教学认真负责！',
+          date: '2024-01-10'
+        },
+        {
+          id: 2,
+          student_name: '李同学',
+          rating: 5,
+          content: '课程内容丰富，收获很大',
+          date: '2024-01-08'
+        }
+      ]
+    });
+  },
+
+  switchTab(e) {
+    this.setData({ activeTab: e.currentTarget.dataset.index });
+  },
+
+  bookCourse() {
+    if (!getApp().globalData.token) {
+      wx.navigateTo({ url: '/pages/login/login' });
+      return;
+    }
+    
+    wx.navigateTo({
+      url: `/pages/appointment/create?teacherId=${this.data.teacherId}&teacherName=${this.data.teacherInfo.name}`
+    });
+  }
+});
+
+// ========== /pages/teacher/detail.wxml ==========
+`<view class="container">
+  <!-- 教师信息头部 -->
+  <view class="teacher-header">
+    <image class="teacher-avatar" src="{{teacherInfo.avatar}}"></image>
+    <view class="teacher-info">
+      <view class="teacher-name">{{teacherInfo.name}}</view>
+      <view class="teacher-meta">
+        <text class="meta-item">{{teacherInfo.experience_years}}年教龄</text>
+        <text class="meta-item">{{teacherInfo.total_students}}位学生</text>
+      </view>
+      <view class="teacher-rating">
+        <text class="stars">⭐⭐⭐⭐⭐</text>
+        <text class="score">{{teacherInfo.rating}}分</text>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 标签页 -->
+  <view class="tabs">
+    <view class="tab-item {{activeTab === 0 ? 'active' : ''}}" 
+          bindtap="switchTab" data-index="0">简介</view>
+    <view class="tab-item {{activeTab === 1 ? 'active' : ''}}" 
+          bindtap="switchTab" data-index="1">课程</view>
+    <view class="tab-item {{activeTab === 2 ? 'active' : ''}}" 
+          bindtap="switchTab" data-index="2">评价</view>
+  </view>
+  
+  <!-- 内容区域 -->
+  <view class="content">
+    <!-- 简介标签页 -->
+    <view wx:if="{{activeTab === 0}}" class="intro-content">
+      <view class="section">
+        <view class="section-title">个人简介</view>
+        <view class="section-content">{{teacherInfo.introduction}}</view>
+      </view>
+      
+      <view class="section">
+        <view class="section-title">教学成就</view>
+        <view class="achievement-list">
+          <view class="achievement-item" wx:for="{{teacherInfo.achievements}}" wx:key="*this">
+            <text class="achievement-icon">✓</text>
+            <text class="achievement-text">{{item}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 课程标签页 -->
+    <view wx:if="{{activeTab === 1}}" class="course-content">
+      <view class="course-card" wx:for="{{courses}}" wx:key="id">
+        <view class="course-name">{{item.name}}</view>
+        <view class="course-meta">
+          <text class="course-duration">{{item.duration}}分钟/节</text>
+          <text class="course-price">¥{{item.price}}</text>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 评价标签页 -->
+    <view wx:if="{{activeTab === 2}}" class="review-content">
+      <view class="review-card" wx:for="{{reviews}}" wx:key="id">
+        <view class="review-header">
+          <text class="student-name">{{item.student_name}}</text>
+          <text class="review-date">{{item.date}}</text>
+        </view>
+        <view class="review-rating">
+          <text class="stars">⭐⭐⭐⭐⭐</text>
+        </view>
+        <view class="review-text">{{item.content}}</view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 底部预约按钮 -->
+  <view class="bottom-bar">
+    <button class="book-btn" bindtap="bookCourse">立即预约</button>
+  </view>
+</view>`
+
+// ========== /pages/teacher/detail.wxss ==========
+`.teacher-header {
+  display: flex;
+  padding: 30rpx;
+  background: white;
+}
+
+.teacher-avatar {
+  width: 150rpx;
+  height: 150rpx;
+  border-radius: 75rpx;
+  margin-right: 30rpx;
+}
+
+.teacher-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.teacher-name {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 15rpx;
+}
+
+.teacher-meta {
+  display: flex;
+  gap: 20rpx;
+  margin-bottom: 15rpx;
+}
+
+.meta-item {
+  font-size: 26rpx;
+  color: #666;
+}
+
+.teacher-rating {
+  display: flex;
+  align-items: center;
+}
+
+.stars {
+  font-size: 24rpx;
+  margin-right: 10rpx;
+}
+
+.score {
+  font-size: 28rpx;
+  color: #ff9500;
+  font-weight: bold;
+}
+
+.tabs {
+  display: flex;
+  background: white;
+  margin-top: 20rpx;
+}
+
+.tab-item {
+  flex: 1;
+  text-align: center;
+  padding: 30rpx 0;
+  font-size: 30rpx;
+  color: #666;
+  position: relative;
+}
+
+.tab-item.active {
+  color: #4A90E2;
+  font-weight: bold;
+}
+
+.tab-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60rpx;
+  height: 4rpx;
+  background: #4A90E2;
+}
+
+.content {
+  padding: 20rpx;
+  padding-bottom: 120rpx;
+}
+
+.section {
+  background: white;
+  border-radius: 20rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20rpx;
+}
+
+.section-content {
+  font-size: 28rpx;
+  color: #666;
+  line-height: 1.6;
+}
+
+.achievement-list {
+  margin-top: 20rpx;
+}
+
+.achievement-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15rpx;
+}
+
+.achievement-icon {
+  color: #4A90E2;
+  margin-right: 15rpx;
+  font-size: 28rpx;
+}
+
+.achievement-text {
+  font-size: 28rpx;
+  color: #666;
+}
+
+.course-card {
+  background: white;
+  border-radius: 15rpx;
+  padding: 25rpx;
+  margin-bottom: 15rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.course-name {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.course-meta {
+  text-align: right;
+}
+
+.course-duration {
+  font-size: 24rpx;
+  color: #999;
+  display: block;
+  margin-bottom: 10rpx;
+}
+
+.course-price {
+  font-size: 36rpx;
+  color: #ff4444;
+  font-weight: bold;
+}
+
+.review-card {
+  background: white;
+  border-radius: 15rpx;
+  padding: 25rpx;
+  margin-bottom: 15rpx;
+}
+
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15rpx;
+}
+
+.student-name {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.review-date {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.review-rating {
+  margin-bottom: 15rpx;
+}
+
+.review-text {
+  font-size: 28rpx;
+  color: #666;
+  line-height: 1.5;
+}
+
+.bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 20rpx 30rpx;
+  background: white;
+  box-shadow: 0 -2rpx 10rpx rgba(0,0,0,0.05);
+}
+
+.book-btn {
+  width: 100%;
+  height: 90rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 45rpx;
+  font-size: 32rpx;
+  border: none;
+}`
+
+// ========== /pages/teacher/detail.json ==========
+// {
+//   "navigationBarTitleText": "教师详情"
+// }
+
+// ========== /pages/teacher/schedule.js ==========
+Page({
+  data: {
+    weekDays: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+    timeSlots: [],
+    schedules: {},
+    currentWeek: [],
+    selectedDate: ''
+  },
+
+  onLoad() {
+    this.initTimeSlots();
+    this.initWeekDates();
+    this.loadMySchedule();
+  },
+
+  initTimeSlots() {
+    const slots = [];
+    for (let hour = 9; hour < 21; hour++) {
+      slots.push({
+        start: `${hour}:00`,
+        end: `${hour + 1}:00`,
+        label: `${hour}:00-${hour + 1}:00`
+      });
+    }
+    this.setData({ timeSlots: slots });
+  },
+
+  initWeekDates() {
+    const today = new Date();
+    const currentWeek = [];
+    
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() - today.getDay() + i + 1);
+      currentWeek.push({
+        date: this.formatDate(date),
+        day: this.data.weekDays[i],
+        dayNum: date.getDate()
+      });
+    }
+    
+    this.setData({ 
+      currentWeek,
+      selectedDate: this.formatDate(today)
+    });
+  },
+
+  formatDate(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  },
+
+  loadMySchedule() {
+    // 获取教师的时间表
+    const userInfo = getApp().globalData.userInfo;
+    if (!userInfo) return;
+    
+    // 模拟数据
+    const schedules = {};
+    this.data.currentWeek.forEach(day => {
+      schedules[day.date] = [];
+    });
+    
+    this.setData({ schedules });
+  },
+
+  selectDate(e) {
+    const date = e.currentTarget.dataset.date;
+    this.setData({ selectedDate: date });
+  },
+
+  toggleTimeSlot(e) {
+    const { time } = e.currentTarget.dataset;
+    const { selectedDate, schedules } = this.data;
+    
+    if (!schedules[selectedDate]) {
+      schedules[selectedDate] = [];
+    }
+    
+    const index = schedules[selectedDate].indexOf(time);
+    if (index > -1) {
+      schedules[selectedDate].splice(index, 1);
+    } else {
+      schedules[selectedDate].push(time);
+    }
+    
+    this.setData({ schedules });
+  },
+
+  isTimeSelected(time) {
+    const { selectedDate, schedules } = this.data;
+    return schedules[selectedDate] && schedules[selectedDate].includes(time);
+  },
+
+  saveSchedule() {
+    wx.showLoading({ title: '保存中...' });
+    
+    // 整理数据格式
+    const scheduleData = [];
+    Object.keys(this.data.schedules).forEach(date => {
+      this.data.schedules[date].forEach(time => {
+        scheduleData.push({
+          date: date,
+          time: time
+        });
+      });
+    });
+    
+    // 调用API保存
+    getApp().request({
+      url: '/teacher-schedules',
+      method: 'POST',
+      data: { schedules: scheduleData }
+    }).then(() => {
+      wx.hideLoading();
+      wx.showToast({ title: '保存成功', icon: 'success' });
+    }).catch(() => {
+      wx.hideLoading();
+    });
+  }
+});
+
+// ========== /pages/teacher/schedule.wxml ==========
+`<view class="container">
+  <!-- 星期选择 -->
+  <view class="week-selector">
+    <view class="week-item {{selectedDate === item.date ? 'active' : ''}}" 
+          wx:for="{{currentWeek}}" 
+          wx:key="date"
+          bindtap="selectDate"
+          data-date="{{item.date}}">
+      <text class="week-day">{{item.day}}</text>
+      <text class="week-date">{{item.dayNum}}</text>
+    </view>
+  </view>
+  
+  <!-- 时间段选择 -->
+  <view class="time-section">
+    <view class="section-title">选择可用时间段</view>
+    <view class="time-grid">
+      <view class="time-slot {{isTimeSelected(item.start) ? 'selected' : ''}}"
+            wx:for="{{timeSlots}}" 
+            wx:key="start"
+            bindtap="toggleTimeSlot"
+            data-time="{{item.start}}">
+        {{item.label}}
+      </view>
+    </view>
+  </view>
+  
+  <!-- 保存按钮 -->
+  <view class="save-section">
+    <button class="save-btn" bindtap="saveSchedule">保存时间表</button>
+  </view>
+</view>`
+
+// ========== /pages/teacher/schedule.wxss ==========
+`.week-selector {
+  display: flex;
+  background: white;
+  padding: 20rpx;
+  margin-bottom: 20rpx;
+}
+
+.week-item {
+  flex: 1;
+  text-align: center;
+  padding: 20rpx 10rpx;
+  border-radius: 15rpx;
+  transition: all 0.3s;
+}
+
+.week-item.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.week-day {
+  display: block;
+  font-size: 24rpx;
+  margin-bottom: 10rpx;
+}
+
+.week-date {
+  display: block;
+  font-size: 32rpx;
+  font-weight: bold;
+}
+
+.time-section {
+  background: white;
+  padding: 30rpx;
+  margin: 20rpx;
+  border-radius: 20rpx;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 30rpx;
+}
+
+.time-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20rpx;
+}
+
+.time-slot {
+  padding: 20rpx;
+  text-align: center;
+  background: #f5f5f5;
+  border-radius: 10rpx;
+  font-size: 26rpx;
+  color: #333;
+  transition: all 0.3s;
+}
+
+.time-slot.selected {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.save-section {
+  padding: 20rpx 40rpx 40rpx;
+}
+
+.save-btn {
+  width: 100%;
+  height: 90rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 45rpx;
+  font-size: 32rpx;
+  border: none;
+}`
+
+// ========== /pages/teacher/schedule.json ==========
+// {
+//   "navigationBarTitleText": "时间管理"
+// }
+
+// ========== /pages/admin/dashboard.js ==========
+Page({
+  data: {
+    stats: {
+      totalStudents: 0,
+      totalTeachers: 0,
+      todayAppointments: 0,
+      monthRevenue: 0
+    },
+    recentAppointments: [],
+    chartData: null
+  },
+
+  onLoad() {
+    this.checkAdminRole();
+    this.loadDashboardData();
+  },
+
+  checkAdminRole() {
+    const role = getApp().globalData.role;
+    if (role !== 'admin') {
+      wx.showToast({
+        title: '无权限访问',
+        icon: 'none'
+      });
+      setTimeout(() => {
+        wx.switchTab({ url: '/pages/index/index' });
+      }, 1500);
+    }
+  },
+
+  loadDashboardData() {
+    wx.showLoading({ title: '加载中...' });
+    
+    // 模拟数据，实际应该调用多个API
+    this.setData({
+      stats: {
+        totalStudents: 256,
+        totalTeachers: 18,
+        todayAppointments: 24,
+        monthRevenue: 45280
+      },
+      recentAppointments: [
+        {
+          id: 1,
+          student_name: '张三',
+          teacher_name: '李老师',
+          course_name: '钢琴',
+          appointment_date: '2024-01-15',
+          start_time: '14:00',
+          status: 'confirmed'
+        },
+        {
+          id: 2,
+          student_name: '李四',
+          teacher_name: '王老师',
+          course_name: '吉他',
+          appointment_date: '2024-01-15',
+          start_time: '15:00',
+          status: 'pending'
+        }
+      ]
+    });
+    
+    wx.hideLoading();
+  },
+
+  goToSalary() {
+    wx.navigateTo({ url: '/pages/admin/salary' });
+  },
+
+  goToCourseManage() {
+    wx.navigateTo({ url: '/pages/admin/course' });
+  },
+
+  goToTeacherManage() {
+    wx.navigateTo({ url: '/pages/admin/teacher' });
+  },
+
+  goToStudentManage() {
+    wx.navigateTo({ url: '/pages/admin/student' });
+  },
+
+  viewAppointmentDetail(e) {
+    const id = e.currentTarget.dataset.id;
+    wx.navigateTo({ url: `/pages/admin/appointment-detail?id=${id}` });
+  },
+
+  exportData() {
+    wx.showModal({
+      title: '导出数据',
+      content: '确定要导出本月数据报表吗？',
+      success: (res) => {
+        if (res.confirm) {
+          wx.showToast({ title: '导出成功', icon: 'success' });
+        }
+      }
+    });
+  }
+});
+
+// ========== /pages/admin/dashboard.wxml ==========
+`<view class="container">
+  <!-- 统计卡片 -->
+  <view class="stats-grid">
+    <view class="stat-card">
+      <view class="stat-icon">👥</view>
+      <view class="stat-info">
+        <view class="stat-value">{{stats.totalStudents}}</view>
+        <view class="stat-label">总学生数</view>
+      </view>
+    </view>
+    
+    <view class="stat-card">
+      <view class="stat-icon">👨‍🏫</view>
+      <view class="stat-info">
+        <view class="stat-value">{{stats.totalTeachers}}</view>
+        <view class="stat-label">总教师数</view>
+      </view>
+    </view>
+    
+    <view class="stat-card">
+      <view class="stat-icon">📅</view>
+      <view class="stat-info">
+        <view class="stat-value">{{stats.todayAppointments}}</view>
+        <view class="stat-label">今日预约</view>
+      </view>
+    </view>
+    
+    <view class="stat-card">
+      <view class="stat-icon">💰</view>
+      <view class="stat-info">
+        <view class="stat-value">¥{{stats.monthRevenue}}</view>
+        <view class="stat-label">本月收入</view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 快捷操作 -->
+  <view class="quick-actions">
+    <view class="action-item" bindtap="goToSalary">
+      <view class="action-icon">💳</view>
+      <view class="action-name">工资结算</view>
+    </view>
+    <view class="action-item" bindtap="goToCourseManage">
+      <view class="action-icon">📚</view>
+      <view class="action-name">课程管理</view>
+    </view>
+    <view class="action-item" bindtap="goToTeacherManage">
+      <view class="action-icon">👨‍🏫</view>
+      <view class="action-name">教师管理</view>
+    </view>
+    <view class="action-item" bindtap="goToStudentManage">
+      <view class="action-icon">👥</view>
+      <view class="action-name">学生管理</view>
+    </view>
+  </view>
+  
+  <!-- 最近预约 -->
+  <view class="recent-section">
+    <view class="section-header">
+      <text class="section-title">最近预约</text>
+      <text class="section-more" bindtap="goToAllAppointments">查看全部 ></text>
+    </view>
+    
+    <view class="appointment-list">
+      <view class="appointment-item" 
+            wx:for="{{recentAppointments}}" 
+            wx:key="id"
+            bindtap="viewAppointmentDetail"
+            data-id="{{item.id}}">
+        <view class="appointment-info">
+          <view class="appointment-main">
+            <text class="student-name">{{item.student_name}}</text>
+            <text class="course-name">{{item.course_name}}</text>
+          </view>
+          <view class="appointment-meta">
+            <text class="teacher-name">{{item.teacher_name}}</text>
+            <text class="appointment-time">{{item.appointment_date}} {{item.start_time}}</text>
+          </view>
+        </view>
+        <view class="appointment-status status-{{item.status}}">
+          {{item.status === 'pending' ? '待确认' : '已确认'}}
+        </view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 导出按钮 -->
+  <view class="export-section">
+    <button class="export-btn" bindtap="exportData">导出数据报表</button>
+  </view>
+</view>`
+
+// ========== /pages/admin/dashboard.wxss ==========
+`.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20rpx;
+  padding: 20rpx;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 20rpx;
+  padding: 30rpx;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 2rpx 10rpx rgba(0,0,0,0.05);
+}
+
+.stat-icon {
+  font-size: 60rpx;
+  margin-right: 20rpx;
+}
+
+.stat-info {
+  flex: 1;
+}
+
+.stat-value {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.stat-label {
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 5rpx;
+}
+
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20rpx;
+  padding: 20rpx;
+  background: white;
+  margin: 20rpx;
+  border-radius: 20rpx;
+}
+
+.action-item {
+  text-align: center;
+  padding: 20rpx;
+}
+
+.action-icon {
+  font-size: 50rpx;
+  margin-bottom: 10rpx;
+}
+
+.action-name {
+  font-size: 24rpx;
+  color: #666;
+}
+
+.recent-section {
+  margin: 20rpx;
+  background: white;
+  border-radius: 20rpx;
+  padding: 30rpx;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30rpx;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.section-more {
+  font-size: 26rpx;
+  color: #4A90E2;
+}
+
+.appointment-list {
+  margin-top: 20rpx;
+}
+
+.appointment-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.appointment-item:last-child {
+  border-bottom: none;
+}
+
+.appointment-info {
+  flex: 1;
+}
+
+.appointment-main {
+  display: flex;
+  gap: 20rpx;
+  margin-bottom: 10rpx;
+}
+
+.student-name {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.course-name {
+  font-size: 26rpx;
+  color: #666;
+  padding: 2rpx 10rpx;
+  background: #f0f0f0;
+  border-radius: 10rpx;
+}
+
+.appointment-meta {
+  display: flex;
+  gap: 20rpx;
+  font-size: 24rpx;
+  color: #999;
+}
+
+.appointment-status {
+  padding: 8rpx 20rpx;
+  border-radius: 20rpx;
+  font-size: 24rpx;
+}
+
+.status-pending {
+  background: #fff7e6;
+  color: #ff9500;
+}
+
+.status-confirmed {
+  background: #e6f7ff;
+  color: #1890ff;
+}
+
+.export-section {
+  padding: 20rpx 40rpx 40rpx;
+}
+
+.export-btn {
+  width: 100%;
+  height: 90rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 45rpx;
+  font-size: 32rpx;
+  border: none;
+}`
+
+// ========== /pages/admin/dashboard.json ==========
+// {
+//   "navigationBarTitleText": "管理后台"
+// }
+
+// ========== /pages/admin/salary.js ==========
+Page({
+  data: {
+    currentYear: new Date().getFullYear(),
+    currentMonth: new Date().getMonth() + 1,
+    salaryData: [],
+    totalAmount: 0,
+    selectedTeacher: null
+  },
+
+  onLoad() {
+    this.loadSalaryData();
+  },
+
+  loadSalaryData() {
+    wx.showLoading({ title: '加载中...' });
+    
+    getApp().request({
+      url: `/salary/monthly?year=${this.data.currentYear}&month=${this.data.currentMonth}`,
+      method: 'GET'
+    }).then(data => {
+      wx.hideLoading();
+      
+      const total = data.reduce((sum, item) => sum + (item.total_amount || 0), 0);
+      
+      this.setData({
+        salaryData: data,
+        totalAmount: total
+      });
+    }).catch(() => {
+      wx.hideLoading();
+    });
+  },
+
+  bindDateChange(e) {
+    const [year, month] = e.detail.value.split('-');
+    this.setData({
+      currentYear: parseInt(year),
+      currentMonth: parseInt(month)
+    });
+    this.loadSalaryData();
+  },
+
+  generateSalary() {
+    wx.showModal({
+      title: '确认生成',
+      content: `确定要生成${this.data.currentYear}年${this.data.currentMonth}月的工资单吗？`,
+      success: (res) => {
+        if (res.confirm) {
+          wx.showLoading({ title: '生成中...' });
+          
+          getApp().request({
+            url: '/salary/generate',
+            method: 'POST',
+            data: {
+              year: this.data.currentYear,
+              month: this.data.currentMonth
+            }
+          }).then(() => {
+            wx.hideLoading();
+            wx.showToast({ title: '生成成功', icon: 'success' });
+            this.loadSalaryData();
+          }).catch(() => {
+            wx.hideLoading();
+          });
+        }
+      }
+    });
+  },
+
+  viewTeacherDetail(e) {
+    const teacher = e.currentTarget.dataset.teacher;
+    this.setData({ selectedTeacher: teacher });
+    
+    wx.navigateTo({
+      url: `/pages/admin/teacher-salary?id=${teacher.teacher_id}&year=${this.data.currentYear}&month=${this.data.currentMonth}`
+    });
+  },
+
+  markAsPaid(e) {
+    const teacherId = e.currentTarget.dataset.id;
+    
+    wx.showModal({
+      title: '确认发放',
+      content: '确定已向该教师发放工资吗？',
+      success: (res) => {
+        if (res.confirm) {
+          wx.showToast({ title: '已标记为已发放', icon: 'success' });
+          // 更新状态
+          this.loadSalaryData();
+        }
+      }
+    });
+  },
+
+  exportSalary() {
+    wx.showToast({ title: '正在导出...', icon: 'loading' });
+    // 实际导出逻辑
+    setTimeout(() => {
+      wx.showToast({ title: '导出成功', icon: 'success' });
+    }, 1500);
+  }
+});
+
+// ========== /pages/admin/salary.wxml ==========
+`<view class="container">
+  <!-- 月份选择 -->
+  <view class="month-selector">
+    <picker mode="date" fields="month" value="{{currentYear}}-{{currentMonth}}" bindchange="bindDateChange">
+      <view class="month-display">
+        <text class="month-text">{{currentYear}}年{{currentMonth}}月</text>
+        <text class="arrow">▼</text>
+      </view>
+    </picker>
+    <view class="total-amount">
+      <text class="total-label">工资总额</text>
+      <text class="total-value">¥{{totalAmount}}</text>
+    </view>
+  </view>
+  
+  <!-- 操作按钮 -->
+  <view class="action-bar">
+    <button class="action-btn primary" bindtap="generateSalary">生成工资单</button>
+    <button class="action-btn" bindtap="exportSalary">导出Excel</button>
+  </view>
+  
+  <!-- 工资列表 -->
+  <view class="salary-list">
+    <view class="salary-item" 
+          wx:for="{{salaryData}}" 
+          wx:key="teacher_id">
+      <view class="teacher-info" bindtap="viewTeacherDetail" data-teacher="{{item}}">
+        <view class="teacher-name">{{item.teacher_name}}</view>
+        <view class="teacher-stats">
+          <text class="stat-item">{{item.total_classes || 0}}节课</text>
+          <text class="stat-item">{{item.total_hours || 0}}小时</text>
+        </view>
+      </view>
+      <view class="salary-info">
+        <view class="salary-amount">¥{{item.total_amount || 0}}</view>
+        <button class="pay-btn" bindtap="markAsPaid" data-id="{{item.teacher_id}}">
+          标记已发放
+        </button>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 空状态 -->
+  <view wx:if="{{salaryData.length === 0}}" class="empty">
+    <text class="empty-icon">💰</text>
+    <text class="empty-text">暂无工资数据</text>
+    <button class="generate-btn" bindtap="generateSalary">生成工资单</button>
+  </view>
+</view>`
+
+// ========== /pages/admin/salary.wxss ==========
+`.month-selector {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  padding: 30rpx;
+  margin: 20rpx;
+  border-radius: 20rpx;
+}
+
+.month-display {
+  display: flex;
+  align-items: center;
+  padding: 15rpx 30rpx;
+  background: #f5f5f5;
+  border-radius: 10rpx;
+}
+
+.month-text {
+  font-size: 32rpx;
+  color: #333;
+  margin-right: 10rpx;
+}
+
+.arrow {
+  font-size: 20rpx;
+  color: #999;
+}
+
+.total-amount {
+  text-align: right;
+}
+
+.total-label {
+  font-size: 24rpx;
+  color: #999;
+  display: block;
+  margin-bottom: 10rpx;
+}
+
+.total-value {
+  font-size: 48rpx;
+  font-weight: bold;
+  color: #4A90E2;
+}
+
+.action-bar {
+  display: flex;
+  gap: 20rpx;
+  padding: 0 20rpx;
+  margin-bottom: 20rpx;
+}
+
+.action-btn {
+  flex: 1;
+  height: 80rpx;
+  border-radius: 40rpx;
+  font-size: 28rpx;
+  background: #f5f5f5;
+  color: #666;
+  border: none;
+}
+
+.action-btn.primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.salary-list {
+  padding: 0 20rpx;
+}
+
+.salary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  padding: 30rpx;
+  border-radius: 20rpx;
+  margin-bottom: 20rpx;
+}
+
+.teacher-info {
+  flex: 1;
+}
+
+.teacher-name {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10rpx;
+}
+
+.teacher-stats {
+  display: flex;
+  gap: 20rpx;
+}
+
+.stat-item {
+  font-size: 24rpx;
+  color: #666;
+  padding: 4rpx 12rpx;
+  background: #f5f5f5;
+  border-radius: 10rpx;
+}
+
+.salary-info {
+  text-align: right;
+}
+
+.salary-amount {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #ff4444;
+  margin-bottom: 15rpx;
+}
+
+.pay-btn {
+  padding: 10rpx 25rpx;
+  background: #52c41a;
+  color: white;
+  border-radius: 20rpx;
+  font-size: 24rpx;
+  border: none;
+}
+
+.empty {
+  text-align: center;
+  padding: 100rpx 40rpx;
+}
+
+.empty-icon {
+  font-size: 100rpx;
+  display: block;
+  margin-bottom: 30rpx;
+}
+
+.empty-text {
+  font-size: 30rpx;
+  color: #999;
+  margin-bottom: 40rpx;
+}
+
+.generate-btn {
+  width: 300rpx;
+  height: 80rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 40rpx;
+  font-size: 28rpx;
+  border: none;
+}`
+
+// ========== /pages/admin/salary.json ==========
+// {
+//   "navigationBarTitleText": "工资结算"
+// }
+
+// ========== /pages/course/list.js ==========
+Page({
+  data: {
+    courseTypes: []
+  },
+
+  onLoad() {
+    this.loadCourseTypes();
+  },
+
+  loadCourseTypes() {
+    wx.showLoading({ title: '加载中...' });
+    
+    getApp().request({
+      url: '/course-types',
+      method: 'GET'
+    }).then(data => {
+      wx.hideLoading();
+      this.setData({ 
+        courseTypes: data.map(item => ({
+          ...item,
+          icon: this.getCourseIcon(item.name),
+          studentCount: Math.floor(Math.random() * 100) + 50,
+          teacherCount: Math.floor(Math.random() * 10) + 5
+        }))
+      });
+    }).catch(() => {
+      wx.hideLoading();
+    });
+  },
+
+  getCourseIcon(name) {
+    const icons = {
+      '钢琴': '🎹',
+      '吉他': '🎸',
+      '声乐': '🎤',
+      '古筝': '🎻',
+      '小提琴': '🎻',
+      '架子鼓': '🥁',
+      '尤克里里': '🎸',
+      '萨克斯': '🎺'
+    };
+    return icons[name] || '🎵';
+  },
+
+  selectCourse(e) {
+    const { id, name } = e.currentTarget.dataset;
+    wx.navigateTo({
+      url: `/pages/teacher/list?courseId=${id}&courseName=${name}`
+    });
+  }
+});
+
+// ========== /pages/course/list.wxml ==========
+`<view class="container">
+  <view class="course-grid">
+    <view class="course-card" 
+          wx:for="{{courseTypes}}" 
+          wx:key="id"
+          bindtap="selectCourse"
+          data-id="{{item.id}}"
+          data-name="{{item.name}}">
+      <view class="course-icon">{{item.icon}}</view>
+      <view class="course-name">{{item.name}}</view>
+      <view class="course-desc">{{item.description || '专业教学，快速提升'}}</view>
+      <view class="course-stats">
+        <text class="stat">{{item.teacherCount}}位老师</text>
+        <text class="stat">{{item.studentCount}}位学生</text>
+      </view>
+    </view>
+  </view>
+</view>`
+
+// ========== /pages/course/list.wxss ==========
+`.course-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20rpx;
+  padding: 20rpx;
+}
+
+.course-card {
+  background: white;
+  border-radius: 20rpx;
+  padding: 30rpx;
+  text-align: center;
+  box-shadow: 0 2rpx 10rpx rgba(0,0,0,0.05);
+  transition: all 0.3s;
+}
+
+.course-card:active {
+  transform: scale(0.98);
+}
+
+.course-icon {
+  font-size: 80rpx;
+  margin-bottom: 20rpx;
+}
+
+.course-name {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10rpx;
+}
+
+.course-desc {
+  font-size: 24rpx;
+  color: #999;
+  margin-bottom: 20rpx;
+}
+
+.course-stats {
+  display: flex;
+  justify-content: center;
+  gap: 20rpx;
+}
+
+.stat {
+  font-size: 22rpx;
+  color: #666;
+  padding: 4rpx 12rpx;
+  background: #f5f5f5;
+  border-radius: 10rpx;
+}`
+
+// ========== /pages/course/list.json ==========
+// {
+//   "navigationBarTitleText": "全部课程"
+// }

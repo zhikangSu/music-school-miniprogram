@@ -1,0 +1,50 @@
+// ========== /pages/admin/salary.wxml ==========
+`<view class="container">
+  <!-- 月份选择 -->
+  <view class="month-selector">
+    <picker mode="date" fields="month" value="{{currentYear}}-{{currentMonth}}" bindchange="bindDateChange">
+      <view class="month-display">
+        <text class="month-text">{{currentYear}}年{{currentMonth}}月</text>
+        <text class="arrow">▼</text>
+      </view>
+    </picker>
+    <view class="total-amount">
+      <text class="total-label">工资总额</text>
+      <text class="total-value">¥{{totalAmount}}</text>
+    </view>
+  </view>
+  
+  <!-- 操作按钮 -->
+  <view class="action-bar">
+    <button class="action-btn primary" bindtap="generateSalary">生成工资单</button>
+    <button class="action-btn" bindtap="exportSalary">导出Excel</button>
+  </view>
+  
+  <!-- 工资列表 -->
+  <view class="salary-list">
+    <view class="salary-item" 
+          wx:for="{{salaryData}}" 
+          wx:key="teacher_id">
+      <view class="teacher-info" bindtap="viewTeacherDetail" data-teacher="{{item}}">
+        <view class="teacher-name">{{item.teacher_name}}</view>
+        <view class="teacher-stats">
+          <text class="stat-item">{{item.total_classes || 0}}节课</text>
+          <text class="stat-item">{{item.total_hours || 0}}小时</text>
+        </view>
+      </view>
+      <view class="salary-info">
+        <view class="salary-amount">¥{{item.total_amount || 0}}</view>
+        <button class="pay-btn" bindtap="markAsPaid" data-id="{{item.teacher_id}}">
+          标记已发放
+        </button>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 空状态 -->
+  <view wx:if="{{salaryData.length === 0}}" class="empty">
+    <text class="empty-icon">💰</text>
+    <text class="empty-text">暂无工资数据</text>
+    <button class="generate-btn" bindtap="generateSalary">生成工资单</button>
+  </view>
+</view>`

@@ -1,0 +1,33 @@
+// ========== /pages/teacher/schedule.wxml ==========
+`<view class="container">
+  <!-- 星期选择 -->
+  <view class="week-selector">
+    <view class="week-item {{selectedDate === item.date ? 'active' : ''}}" 
+          wx:for="{{currentWeek}}" 
+          wx:key="date"
+          bindtap="selectDate"
+          data-date="{{item.date}}">
+      <text class="week-day">{{item.day}}</text>
+      <text class="week-date">{{item.dayNum}}</text>
+    </view>
+  </view>
+  
+  <!-- 时间段选择 -->
+  <view class="time-section">
+    <view class="section-title">选择可用时间段</view>
+    <view class="time-grid">
+      <view class="time-slot {{isTimeSelected(item.start) ? 'selected' : ''}}"
+            wx:for="{{timeSlots}}" 
+            wx:key="start"
+            bindtap="toggleTimeSlot"
+            data-time="{{item.start}}">
+        {{item.label}}
+      </view>
+    </view>
+  </view>
+  
+  <!-- 保存按钮 -->
+  <view class="save-section">
+    <button class="save-btn" bindtap="saveSchedule">保存时间表</button>
+  </view>
+</view>`

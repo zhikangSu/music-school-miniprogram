@@ -1,0 +1,29 @@
+// ========== /pages/login/login.wxml ==========
+`<view class="login-container">
+  <view class="login-box">
+    <view class="logo">
+      <text class="logo-icon">🎵</text>
+    </view>
+    <view class="app-name">琴房管理系统</view>
+    <view class="app-desc">专业的音乐教育管理平台</view>
+    
+    <button 
+      wx:if="{{canIUseGetUserProfile}}" 
+      class="login-btn"
+      bindtap="getUserProfile">
+      <text class="btn-icon">👤</text>
+      微信快速登录
+    </button>
+    
+    <button 
+      wx:else 
+      class="login-btn"
+      open-type="getUserInfo" 
+      bindgetuserinfo="getUserInfo">
+      <text class="btn-icon">👤</text>
+      微信快速登录
+    </button>
+    
+    <view class="tips">登录即表示同意《用户协议》和《隐私政策》</view>
+  </view>
+</view>`

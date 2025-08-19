@@ -1,0 +1,2052 @@
+// ==================== 微信小程序完整项目文件 ====================
+// 请按照以下结构在微信开发者工具中创建文件
+
+// ========== /app.js ==========
+App({
+  globalData: {
+    userInfo: null,
+    token: null,
+    apiUrl: 'https://your-api-domain.com/api', // 修改为您的实际API地址
+    role: null
+  },
+
+  onLaunch() {
+    const token = wx.getStorageSync('token');
+    const userInfo = wx.getStorageSync('userInfo');
+    
+    if (token) {
+      this.globalData.token = token;
+      this.globalData.userInfo = userInfo;
+      this.globalData.role = userInfo.role;
+    }
+  },
+
+  request(options) {
+    const token = this.globalData.token;
+    
+    return new Promise((resolve, reject) => {
+      wx.request({
+        ...options,
+        url: this.globalData.apiUrl + options.url,
+        header: {
+          'Authorization': token ? `Bearer ${token}` : '',
+          'Content-Type': 'application/json',
+          ...options.header
+        },
+        success: (res) => {
+          if (res.statusCode === 200) {
+            resolve(res.data);
+          } else if (res.statusCode === 401) {
+            wx.redirectTo({ url: '/pages/login/login' });
+            reject(res);
+          } else {
+            wx.showToast({
+              title: res.data.error || '请求失败',
+              icon: 'none'
+            });
+            reject(res);
+          }
+        },
+        fail: reject
+      });
+    });
+  }
+});
+
+// ========== /app.json ==========
+// {
+//   "pages": [
+//     "pages/index/index",
+//     "pages/login/login",
+//     "pages/course/list",
+//     "pages/teacher/list",
+//     "pages/teacher/detail",
+//     "pages/appointment/create",
+//     "pages/appointment/list",
+//     "pages/my/index",
+//     "pages/admin/dashboard",
+//     "pages/admin/salary",
+//     "pages/teacher/schedule"
+//   ],
+//   "window": {
+//     "navigationBarTitleText": "琴房管理系统",
+//     "navigationBarBackgroundColor": "#4A90E2",
+//     "navigationBarTextStyle": "white",
+//     "backgroundColor": "#f5f5f5"
+//   },
+//   "tabBar": {
+//     "color": "#999",
+//     "selectedColor": "#4A90E2",
+//     "backgroundColor": "#fff",
+//     "borderStyle": "black",
+//     "list": [
+//       {
+//         "pagePath": "pages/index/index",
+//         "text": "首页",
+//         "iconPath": "images/home.png",
+//         "selectedIconPath": "images/home-active.png"
+//       },
+//       {
+//         "pagePath": "pages/appointment/list",
+//         "text": "我的课程",
+//         "iconPath": "images/course.png",
+//         "selectedIconPath": "images/course-active.png"
+//       },
+//       {
+//         "pagePath": "pages/my/index",
+//         "text": "我的",
+//         "iconPath": "images/my.png",
+//         "selectedIconPath": "images/my-active.png"
+//       }
+//     ]
+//   },
+//   "sitemapLocation": "sitemap.json",
+//   "lazyCodeLoading": "requiredComponents"
+// }
+
+// ========== /app.wxss ==========
+/* 全局样式 */
+page {
+  background-color: #f5f5f5;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+}
+
+.container {
+  padding: 20rpx;
+}
+
+/* 通用按钮样式 */
+.btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 50rpx;
+  padding: 20rpx 40rpx;
+  font-size: 32rpx;
+  text-align: center;
+  border: none;
+}
+
+.btn-secondary {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.btn-block {
+  width: 100%;
+  display: block;
+}
+
+/* 卡片样式 */
+.card {
+  background: white;
+  border-radius: 20rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0,0,0,0.05);
+}
+
+/* 列表样式 */
+.list-item {
+  display: flex;
+  align-items: center;
+  padding: 30rpx 0;
+  border-bottom: 1rpx solid #eee;
+}
+
+.list-item:last-child {
+  border-bottom: none;
+}
+
+/* 标题样式 */
+.section-title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+  margin: 30rpx 0 20rpx;
+}
+
+// ========== /pages/login/login.js ==========
+const app = getApp();
+
+Page({
+  data: {
+    canIUseGetUserProfile: false
+  },
+
+  onLoad() {
+    if (wx.getUserProfile) {
+      this.setData({
+        canIUseGetUserProfile: true
+      });
+    }
+  },
+
+  getUserProfile() {
+    wx.getUserProfile({
+      desc: '用于完善用户资料',
+      success: (res) => {
+        this.wxLogin(res.userInfo);
+      },
+      fail: () => {
+        wx.showToast({
+          title: '需要授权才能使用',
+          icon: 'none'
+        });
+      }
+    });
+  },
+
+  wxLogin(userInfo) {
+    wx.showLoading({ title: '登录中...' });
+    
+    wx.login({
+      success: (res) => {
+        if (res.code) {
+          app.request({
+            url: '/auth/wxlogin',
+            method: 'POST',
+            data: {
+              code: res.code,
+              userInfo: userInfo
+            }
+          }).then(result => {
+            wx.hideLoading();
+            
+            app.globalData.token = result.token;
+            app.globalData.userInfo = result.user;
+            app.globalData.role = result.user.role;
+            
+            wx.setStorageSync('token', result.token);
+            wx.setStorageSync('userInfo', result.user);
+            
+            if (result.user.role === 'admin') {
+              wx.redirectTo({ url: '/pages/admin/dashboard' });
+            } else {
+              wx.switchTab({ url: '/pages/index/index' });
+            }
+          }).catch(() => {
+            wx.hideLoading();
+          });
+        }
+      }
+    });
+  }
+});
+
+// ========== /pages/login/login.wxml ==========
+`<view class="login-container">
+  <view class="login-box">
+    <view class="logo">
+      <text class="logo-icon">🎵</text>
+    </view>
+    <view class="app-name">琴房管理系统</view>
+    <view class="app-desc">专业的音乐教育管理平台</view>
+    
+    <button 
+      wx:if="{{canIUseGetUserProfile}}" 
+      class="login-btn"
+      bindtap="getUserProfile">
+      <text class="btn-icon">👤</text>
+      微信快速登录
+    </button>
+    
+    <button 
+      wx:else 
+      class="login-btn"
+      open-type="getUserInfo" 
+      bindgetuserinfo="getUserInfo">
+      <text class="btn-icon">👤</text>
+      微信快速登录
+    </button>
+    
+    <view class="tips">登录即表示同意《用户协议》和《隐私政策》</view>
+  </view>
+</view>`
+
+// ========== /pages/login/login.wxss ==========
+`.login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.login-box {
+  width: 600rpx;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 30rpx;
+  padding: 60rpx;
+  text-align: center;
+}
+
+.logo {
+  margin-bottom: 30rpx;
+}
+
+.logo-icon {
+  font-size: 100rpx;
+}
+
+.app-name {
+  font-size: 48rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20rpx;
+}
+
+.app-desc {
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 60rpx;
+}
+
+.login-btn {
+  width: 100%;
+  height: 90rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 45rpx;
+  font-size: 32rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+}
+
+.btn-icon {
+  margin-right: 10rpx;
+  font-size: 36rpx;
+}
+
+.tips {
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 40rpx;
+}`
+
+// ========== /pages/login/login.json ==========
+// {
+//   "navigationBarTitleText": "登录",
+//   "navigationStyle": "custom"
+// }
+
+// ========== /pages/index/index.js ==========
+Page({
+  data: {
+    courseTypes: [],
+    banners: [
+      { id: 1, image: '/images/banner1.jpg', title: '专业音乐教育' },
+      { id: 2, image: '/images/banner2.jpg', title: '名师授课' }
+    ],
+    teachers: [],
+    stats: {
+      totalTeachers: 0,
+      totalStudents: 0,
+      totalCourses: 0
+    }
+  },
+
+  onLoad() {
+    this.checkLogin();
+    this.loadCourseTypes();
+    this.loadTopTeachers();
+    this.loadStats();
+  },
+
+  onShow() {
+    if (getApp().globalData.token) {
+      this.loadCourseTypes();
+    }
+  },
+
+  checkLogin() {
+    if (!getApp().globalData.token) {
+      wx.redirectTo({ url: '/pages/login/login' });
+    }
+  },
+
+  loadCourseTypes() {
+    getApp().request({
+      url: '/course-types',
+      method: 'GET'
+    }).then(data => {
+      this.setData({ 
+        courseTypes: data.map(item => ({
+          ...item,
+          icon: this.getCourseIcon(item.name)
+        }))
+      });
+    });
+  },
+
+  getCourseIcon(name) {
+    const icons = {
+      '钢琴': '🎹',
+      '吉他': '🎸',
+      '声乐': '🎤',
+      '古筝': '🎻',
+      '小提琴': '🎻',
+      '架子鼓': '🥁'
+    };
+    return icons[name] || '🎵';
+  },
+
+  loadTopTeachers() {
+    getApp().request({
+      url: '/teachers',
+      method: 'GET'
+    }).then(data => {
+      this.setData({ 
+        teachers: data.slice(0, 4).map(teacher => ({
+          ...teacher,
+          avatar: teacher.avatar || '/images/default-avatar.png'
+        }))
+      });
+    });
+  },
+
+  loadStats() {
+    // 模拟统计数据，实际应从API获取
+    this.setData({
+      stats: {
+        totalTeachers: 18,
+        totalStudents: 256,
+        totalCourses: 1024
+      }
+    });
+  },
+
+  selectCourse(e) {
+    const { id, name } = e.currentTarget.dataset;
+    wx.navigateTo({
+      url: `/pages/teacher/list?courseId=${id}&courseName=${name}`
+    });
+  },
+
+  viewTeacher(e) {
+    const teacherId = e.currentTarget.dataset.id;
+    wx.navigateTo({
+      url: `/pages/teacher/detail?id=${teacherId}`
+    });
+  },
+
+  goToAllTeachers() {
+    wx.navigateTo({
+      url: '/pages/teacher/list'
+    });
+  },
+
+  goToAllCourses() {
+    wx.navigateTo({
+      url: '/pages/course/list'
+    });
+  }
+});
+
+// ========== /pages/index/index.wxml ==========
+`<view class="index-container">
+  <!-- 轮播图 -->
+  <swiper class="banner" autoplay indicator-dots circular>
+    <swiper-item wx:for="{{banners}}" wx:key="id">
+      <view class="banner-item">
+        <image src="{{item.image}}" mode="aspectFill" class="banner-image"></image>
+        <view class="banner-title">{{item.title}}</view>
+      </view>
+    </swiper-item>
+  </swiper>
+  
+  <!-- 统计数据 -->
+  <view class="stats-bar">
+    <view class="stat-item">
+      <view class="stat-value">{{stats.totalTeachers}}</view>
+      <view class="stat-label">专业教师</view>
+    </view>
+    <view class="stat-item">
+      <view class="stat-value">{{stats.totalStudents}}</view>
+      <view class="stat-label">在读学生</view>
+    </view>
+    <view class="stat-item">
+      <view class="stat-value">{{stats.totalCourses}}</view>
+      <view class="stat-label">累计课程</view>
+    </view>
+  </view>
+  
+  <!-- 课程类型 -->
+  <view class="section">
+    <view class="section-header">
+      <text class="section-title">选择课程</text>
+      <text class="section-more" bindtap="goToAllCourses">查看全部 ></text>
+    </view>
+    <view class="course-grid">
+      <view class="course-item" 
+            wx:for="{{courseTypes}}" 
+            wx:key="id"
+            bindtap="selectCourse"
+            data-id="{{item.id}}"
+            data-name="{{item.name}}">
+        <view class="course-icon">{{item.icon}}</view>
+        <view class="course-name">{{item.name}}</view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 推荐教师 -->
+  <view class="section">
+    <view class="section-header">
+      <text class="section-title">优秀教师</text>
+      <text class="section-more" bindtap="goToAllTeachers">查看全部 ></text>
+    </view>
+    <view class="teacher-list">
+      <view class="teacher-card" 
+            wx:for="{{teachers}}" 
+            wx:key="id"
+            bindtap="viewTeacher"
+            data-id="{{item.id}}">
+        <image class="teacher-avatar" src="{{item.avatar}}"></image>
+        <view class="teacher-info">
+          <view class="teacher-name">{{item.name}}</view>
+          <view class="teacher-meta">
+            <text class="teacher-exp">{{item.experience_years}}年教龄</text>
+            <text class="teacher-rating">⭐ {{item.rating || 5.0}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>`
+
+// ========== /pages/index/index.wxss ==========
+`.index-container {
+  padding-bottom: 20rpx;
+}
+
+.banner {
+  height: 400rpx;
+  margin-bottom: 20rpx;
+}
+
+.banner-item {
+  position: relative;
+  height: 100%;
+}
+
+.banner-image {
+  width: 100%;
+  height: 100%;
+}
+
+.banner-title {
+  position: absolute;
+  bottom: 40rpx;
+  left: 40rpx;
+  color: white;
+  font-size: 40rpx;
+  font-weight: bold;
+  text-shadow: 2rpx 2rpx 10rpx rgba(0,0,0,0.5);
+}
+
+.stats-bar {
+  display: flex;
+  background: white;
+  padding: 30rpx;
+  margin: 20rpx;
+  border-radius: 20rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0,0,0,0.05);
+}
+
+.stat-item {
+  flex: 1;
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 48rpx;
+  font-weight: bold;
+  color: #4A90E2;
+}
+
+.stat-label {
+  font-size: 24rpx;
+  color: #666;
+  margin-top: 10rpx;
+}
+
+.section {
+  margin: 20rpx;
+  background: white;
+  border-radius: 20rpx;
+  padding: 30rpx;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30rpx;
+}
+
+.section-more {
+  font-size: 28rpx;
+  color: #4A90E2;
+}
+
+.course-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20rpx;
+}
+
+.course-item {
+  text-align: center;
+  padding: 20rpx;
+}
+
+.course-icon {
+  font-size: 60rpx;
+  margin-bottom: 10rpx;
+}
+
+.course-name {
+  font-size: 26rpx;
+  color: #333;
+}
+
+.teacher-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20rpx;
+}
+
+.teacher-card {
+  display: flex;
+  padding: 20rpx;
+  background: #f8f8f8;
+  border-radius: 15rpx;
+}
+
+.teacher-avatar {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 50%;
+  margin-right: 20rpx;
+}
+
+.teacher-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.teacher-name {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10rpx;
+}
+
+.teacher-meta {
+  display: flex;
+  align-items: center;
+  font-size: 24rpx;
+  color: #666;
+}
+
+.teacher-exp {
+  margin-right: 20rpx;
+}
+
+.teacher-rating {
+  color: #ff9500;
+}`
+
+// ========== /pages/index/index.json ==========
+// {
+//   "navigationBarTitleText": "首页",
+//   "enablePullDownRefresh": true
+// }
+
+// ========== /pages/teacher/list.js ==========
+Page({
+  data: {
+    courseId: null,
+    courseName: '',
+    teachers: [],
+    loading: false,
+    filterOptions: ['全部', '好评优先', '经验优先', '价格优先'],
+    filterIndex: 0
+  },
+
+  onLoad(options) {
+    this.setData({
+      courseId: options.courseId || null,
+      courseName: options.courseName || '全部教师'
+    });
+    
+    wx.setNavigationBarTitle({
+      title: this.data.courseName
+    });
+    
+    this.loadTeachers();
+  },
+
+  loadTeachers() {
+    this.setData({ loading: true });
+    
+    const url = this.data.courseId 
+      ? `/teachers?courseTypeId=${this.data.courseId}`
+      : '/teachers';
+    
+    getApp().request({
+      url: url,
+      method: 'GET'
+    }).then(data => {
+      this.setData({ 
+        teachers: data.map(teacher => ({
+          ...teacher,
+          avatar: teacher.avatar || '/images/default-avatar.png',
+          tags: this.getTeacherTags(teacher)
+        })),
+        loading: false 
+      });
+    }).catch(() => {
+      this.setData({ loading: false });
+    });
+  },
+
+  getTeacherTags(teacher) {
+    const tags = [];
+    if (teacher.experience_years >= 5) tags.push('资深');
+    if (teacher.rating >= 4.8) tags.push('好评');
+    if (teacher.total_students >= 50) tags.push('人气');
+    return tags;
+  },
+
+  changeFilter(e) {
+    this.setData({ filterIndex: e.detail.value });
+    this.sortTeachers();
+  },
+
+  sortTeachers() {
+    const { filterIndex, teachers } = this.data;
+    let sorted = [...teachers];
+    
+    switch(filterIndex) {
+      case 1: // 好评优先
+        sorted.sort((a, b) => b.rating - a.rating);
+        break;
+      case 2: // 经验优先
+        sorted.sort((a, b) => b.experience_years - a.experience_years);
+        break;
+      case 3: // 价格优先
+        sorted.sort((a, b) => (a.price || 0) - (b.price || 0));
+        break;
+    }
+    
+    this.setData({ teachers: sorted });
+  },
+
+  viewTeacherDetail(e) {
+    const teacherId = e.currentTarget.dataset.id;
+    wx.navigateTo({
+      url: `/pages/teacher/detail?id=${teacherId}`
+    });
+  },
+
+  bookCourse(e) {
+    const teacher = e.currentTarget.dataset.teacher;
+    
+    if (!getApp().globalData.token) {
+      wx.navigateTo({ url: '/pages/login/login' });
+      return;
+    }
+    
+    wx.navigateTo({
+      url: `/pages/appointment/create?teacherId=${teacher.id}&courseId=${this.data.courseId}&teacherName=${teacher.name}`
+    });
+  }
+});
+
+// ========== /pages/teacher/list.wxml ==========
+`<view class="container">
+  <!-- 筛选栏 -->
+  <view class="filter-bar">
+    <picker bindchange="changeFilter" value="{{filterIndex}}" range="{{filterOptions}}">
+      <view class="filter-picker">
+        {{filterOptions[filterIndex]}} <text class="arrow">▼</text>
+      </view>
+    </picker>
+  </view>
+  
+  <!-- 教师列表 -->
+  <view class="teacher-list">
+    <view class="teacher-item card" wx:for="{{teachers}}" wx:key="id">
+      <view class="teacher-header" bindtap="viewTeacherDetail" data-id="{{item.id}}">
+        <image class="teacher-avatar" src="{{item.avatar}}"></image>
+        <view class="teacher-info">
+          <view class="teacher-name">
+            {{item.name}}
+            <text class="teacher-tag" wx:for="{{item.tags}}" wx:key="*this" wx:for-item="tag">{{tag}}</text>
+          </view>
+          <view class="teacher-desc">{{item.experience_years}}年教龄 | {{item.total_students || 0}}位学生</view>
+          <view class="teacher-rating">
+            <text class="stars">⭐⭐⭐⭐⭐</text>
+            <text class="score">{{item.rating || 5.0}}分</text>
+          </view>
+        </view>
+      </view>
+      
+      <view class="teacher-intro">{{item.introduction || '专业认真，教学经验丰富'}}</view>
+      
+      <view class="teacher-footer">
+        <view class="price">
+          <text class="price-label">课时费</text>
+          <text class="price-value">¥{{item.price || 200}}/小时</text>
+        </view>
+        <button class="book-btn" bindtap="bookCourse" data-teacher="{{item}}">立即预约</button>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 加载状态 -->
+  <view wx:if="{{loading}}" class="loading">
+    <text>加载中...</text>
+  </view>
+  
+  <!-- 空状态 -->
+  <view wx:if="{{!loading && teachers.length === 0}}" class="empty">
+    <text class="empty-icon">📚</text>
+    <text class="empty-text">暂无教师信息</text>
+  </view>
+</view>`
+
+// ========== /pages/teacher/list.wxss ==========
+`.filter-bar {
+  background: white;
+  padding: 20rpx 30rpx;
+  border-bottom: 1rpx solid #eee;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.filter-picker {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10rpx 20rpx;
+  background: #f5f5f5;
+  border-radius: 10rpx;
+  font-size: 28rpx;
+}
+
+.arrow {
+  font-size: 20rpx;
+  color: #999;
+}
+
+.teacher-list {
+  padding: 20rpx;
+}
+
+.teacher-item {
+  margin-bottom: 20rpx;
+}
+
+.teacher-header {
+  display: flex;
+  margin-bottom: 20rpx;
+}
+
+.teacher-avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 60rpx;
+  margin-right: 20rpx;
+}
+
+.teacher-info {
+  flex: 1;
+}
+
+.teacher-name {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10rpx;
+}
+
+.teacher-tag {
+  display: inline-block;
+  padding: 4rpx 12rpx;
+  background: #4A90E2;
+  color: white;
+  font-size: 20rpx;
+  border-radius: 20rpx;
+  margin-left: 10rpx;
+}
+
+.teacher-desc {
+  font-size: 26rpx;
+  color: #666;
+  margin-bottom: 10rpx;
+}
+
+.teacher-rating {
+  display: flex;
+  align-items: center;
+}
+
+.stars {
+  font-size: 24rpx;
+  margin-right: 10rpx;
+}
+
+.score {
+  font-size: 26rpx;
+  color: #ff9500;
+}
+
+.teacher-intro {
+  font-size: 28rpx;
+  color: #666;
+  line-height: 1.5;
+  margin-bottom: 20rpx;
+}
+
+.teacher-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 20rpx;
+  border-top: 1rpx solid #eee;
+}
+
+.price {
+  display: flex;
+  flex-direction: column;
+}
+
+.price-label {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.price-value {
+  font-size: 36rpx;
+  color: #ff4444;
+  font-weight: bold;
+}
+
+.book-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 50rpx;
+  padding: 15rpx 40rpx;
+  font-size: 28rpx;
+}
+
+.loading, .empty {
+  text-align: center;
+  padding: 100rpx 0;
+  color: #999;
+}
+
+.empty-icon {
+  font-size: 100rpx;
+  display: block;
+  margin-bottom: 20rpx;
+}
+
+.empty-text {
+  font-size: 28rpx;
+}`
+
+// ========== /pages/teacher/list.json ==========
+// {
+//   "navigationBarTitleText": "选择教师",
+//   "enablePullDownRefresh": true
+// }
+
+// ========== /pages/appointment/create.js ==========
+Page({
+  data: {
+    teacherId: null,
+    courseId: null,
+    teacherName: '',
+    courseTypes: [],
+    selectedCourse: null,
+    selectedDate: '',
+    selectedTime: '',
+    timeSlots: [],
+    notes: '',
+    price: 0,
+    duration: 60
+  },
+
+  onLoad(options) {
+    const today = new Date();
+    const dateStr = this.formatDate(today);
+    
+    this.setData({
+      teacherId: options.teacherId,
+      courseId: options.courseId,
+      teacherName: options.teacherName,
+      selectedDate: dateStr
+    });
+    
+    this.loadCourseTypes();
+    this.loadTeacherSchedule();
+  },
+
+  formatDate(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  },
+
+  loadCourseTypes() {
+    getApp().request({
+      url: '/course-types',
+      method: 'GET'
+    }).then(data => {
+      this.setData({ courseTypes: data });
+      
+      if (this.data.courseId) {
+        const course = data.find(c => c.id == this.data.courseId);
+        this.setData({ 
+          selectedCourse: course,
+          price: 200 // 这里应该从教师价格表获取
+        });
+      }
+    });
+  },
+
+  loadTeacherSchedule() {
+    // 生成时间段
+    const slots = [];
+    for (let hour = 9; hour < 21; hour++) {
+      slots.push({
+        value: `${hour}:00`,
+        label: `${hour}:00 - ${hour + 1}:00`,
+        available: this.checkTimeAvailable(hour)
+      });
+    }
+    this.setData({ timeSlots: slots });
+    
+    // 获取教师已预约时间
+    this.loadAppointments();
+  },
+
+  checkTimeAvailable(hour) {
+    // 这里应该检查实际的预约情况
+    // 模拟一些时间段不可用
+    return ![12, 13, 18].includes(hour);
+  },
+
+  loadAppointments() {
+    getApp().request({
+      url: `/appointments?teacherId=${this.data.teacherId}&date=${this.data.selectedDate}`,
+      method: 'GET'
+    }).then(data => {
+      // 更新时间段可用性
+      const slots = this.data.timeSlots.map(slot => {
+        const [hour] = slot.value.split(':');
+        const isBooked = data.some(apt => {
+          const [aptHour] = apt.start_time.split(':');
+          return aptHour === hour && apt.status !== 'cancelled';
+        });
+        return {
+          ...slot,
+          available: !isBooked && this.checkTimeAvailable(parseInt(hour))
+        };
+      });
+      this.setData({ timeSlots: slots });
+    });
+  },
+
+  bindCourseChange(e) {
+    const index = e.detail.value;
+    this.setData({
+      selectedCourse: this.data.courseTypes[index],
+      courseId: this.data.courseTypes[index].id
+    });
+  },
+
+  bindDateChange(e) {
+    this.setData({ selectedDate: e.detail.value });
+    this.loadTeacherSchedule();
+  },
+
+  selectTime(e) {
+    const time = e.currentTarget.dataset.time;
+    if (time.available) {
+      this.setData({ selectedTime: time.value });
+    } else {
+      wx.showToast({
+        title: '该时间段不可选',
+        icon: 'none'
+      });
+    }
+  },
+
+  bindDurationChange(e) {
+    const durations = [60, 90, 120];
+    this.setData({ 
+      duration: durations[e.detail.value],
+      price: this.data.price * (durations[e.detail.value] / 60)
+    });
+  },
+
+  inputNotes(e) {
+    this.setData({ notes: e.detail.value });
+  },
+
+  submitAppointment() {
+    if (!this.data.selectedCourse) {
+      wx.showToast({ title: '请选择课程类型', icon: 'none' });
+      return;
+    }
+    
+    if (!this.data.selectedTime) {
+      wx.showToast({ title: '请选择上课时间', icon: 'none' });
+      return;
+    }
+    
+    wx.showModal({
+      title: '确认预约',
+      content: `教师：${this.data.teacherName}\n课程：${this.data.selectedCourse.name}\n时间：${this.data.selectedDate} ${this.data.selectedTime}\n费用：¥${this.data.price}`,
+      success: (res) => {
+        if (res.confirm) {
+          this.doSubmit();
+        }
+      }
+    });
+  },
+
+  doSubmit() {
+    const [hour] = this.data.selectedTime.split(':');
+    const endHour = parseInt(hour) + (this.data.duration / 60);
+    const endTime = `${endHour}:00`;
+    
+    wx.showLoading({ title: '提交中...' });
+    
+    getApp().request({
+      url: '/appointments',
+      method: 'POST',
+      data: {
+        teacherId: this.data.teacherId,
+        courseTypeId: this.data.courseId,
+        appointmentDate: this.data.selectedDate,
+        startTime: this.data.selectedTime,
+        endTime: endTime,
+        notes: this.data.notes
+      }
+    }).then(() => {
+      wx.hideLoading();
+      wx.showToast({ title: '预约成功', icon: 'success' });
+      
+      setTimeout(() => {
+        wx.switchTab({ url: '/pages/appointment/list' });
+      }, 1500);
+    }).catch(() => {
+      wx.hideLoading();
+    });
+  }
+});
+
+// ========== /pages/appointment/create.wxml ==========
+`<view class="container">
+  <view class="form-card card">
+    <!-- 教师信息 -->
+    <view class="teacher-info-bar">
+      <text class="label">预约教师</text>
+      <text class="value">{{teacherName}}</text>
+    </view>
+    
+    <!-- 课程选择 -->
+    <view class="form-item">
+      <text class="form-label">课程类型</text>
+      <picker bindchange="bindCourseChange" range="{{courseTypes}}" range-key="name">
+        <view class="picker">
+          {{selectedCourse ? selectedCourse.name : '请选择课程'}}
+          <text class="arrow">></text>
+        </view>
+      </picker>
+    </view>
+    
+    <!-- 日期选择 -->
+    <view class="form-item">
+      <text class="form-label">上课日期</text>
+      <picker mode="date" value="{{selectedDate}}" bindchange="bindDateChange">
+        <view class="picker">
+          {{selectedDate}}
+          <text class="arrow">></text>
+        </view>
+      </picker>
+    </view>
+    
+    <!-- 时长选择 -->
+    <view class="form-item">
+      <text class="form-label">课程时长</text>
+      <picker bindchange="bindDurationChange" range="{{['60分钟', '90分钟', '120分钟']}}">
+        <view class="picker">
+          {{duration}}分钟
+          <text class="arrow">></text>
+        </view>
+      </picker>
+    </view>
+  </view>
+  
+  <!-- 时间选择 -->
+  <view class="time-section card">
+    <text class="section-title">选择时间</text>
+    <view class="time-grid">
+      <view class="time-slot {{!item.available ? 'disabled' : ''}} {{selectedTime === item.value ? 'selected' : ''}}"
+            wx:for="{{timeSlots}}" 
+            wx:key="value"
+            bindtap="selectTime"
+            data-time="{{item}}">
+        {{item.label}}
+      </view>
+    </view>
+  </view>
+  
+  <!-- 备注 -->
+  <view class="notes-section card">
+    <text class="section-title">备注信息</text>
+    <textarea class="notes-input" 
+              placeholder="请输入学习需求或其他备注..." 
+              bindinput="inputNotes"
+              value="{{notes}}"></textarea>
+  </view>
+  
+  <!-- 费用信息 -->
+  <view class="price-bar">
+    <text class="price-label">课程费用</text>
+    <text class="price-value">¥{{price}}</text>
+  </view>
+  
+  <!-- 提交按钮 -->
+  <view class="submit-section">
+    <button class="submit-btn" bindtap="submitAppointment">确认预约</button>
+  </view>
+</view>`
+
+// ========== /pages/appointment/create.wxss ==========
+`.form-card {
+  margin: 20rpx;
+}
+
+.teacher-info-bar {
+  display: flex;
+  justify-content: space-between;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #eee;
+}
+
+.form-item {
+  padding: 30rpx 0;
+  border-bottom: 1rpx solid #eee;
+}
+
+.form-item:last-child {
+  border-bottom: none;
+}
+
+.form-label {
+  display: block;
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 20rpx;
+}
+
+.picker {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 32rpx;
+  color: #333;
+}
+
+.arrow {
+  color: #999;
+}
+
+.time-section {
+  margin: 20rpx;
+}
+
+.time-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20rpx;
+  margin-top: 20rpx;
+}
+
+.time-slot {
+  padding: 20rpx;
+  text-align: center;
+  background: #f5f5f5;
+  border-radius: 10rpx;
+  font-size: 26rpx;
+  color: #333;
+  transition: all 0.3s;
+}
+
+.time-slot.selected {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.time-slot.disabled {
+  background: #e0e0e0;
+  color: #999;
+}
+
+.notes-section {
+  margin: 20rpx;
+}
+
+.notes-input {
+  width: 100%;
+  height: 150rpx;
+  padding: 20rpx;
+  font-size: 28rpx;
+  background: #f5f5f5;
+  border-radius: 10rpx;
+  margin-top: 20rpx;
+}
+
+.price-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30rpx 40rpx;
+  background: white;
+  margin: 20rpx;
+  border-radius: 20rpx;
+}
+
+.price-label {
+  font-size: 30rpx;
+  color: #666;
+}
+
+.price-value {
+  font-size: 48rpx;
+  color: #ff4444;
+  font-weight: bold;
+}
+
+.submit-section {
+  padding: 20rpx 40rpx 40rpx;
+}
+
+.submit-btn {
+  width: 100%;
+  height: 90rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 45rpx;
+  font-size: 32rpx;
+  border: none;
+}`
+
+// ========== /pages/appointment/create.json ==========
+// {
+//   "navigationBarTitleText": "预约课程"
+// }
+
+// ========== /pages/appointment/list.js ==========
+Page({
+  data: {
+    tabs: ['待确认', '已确认', '已完成', '已取消'],
+    activeTab: 0,
+    appointments: [],
+    filteredAppointments: []
+  },
+
+  onLoad() {
+    this.loadAppointments();
+  },
+
+  onShow() {
+    this.loadAppointments();
+  },
+
+  loadAppointments() {
+    wx.showLoading({ title: '加载中...' });
+    
+    getApp().request({
+      url: '/appointments',
+      method: 'GET'
+    }).then(data => {
+      wx.hideLoading();
+      this.setData({ appointments: data });
+      this.filterAppointments();
+    }).catch(() => {
+      wx.hideLoading();
+    });
+  },
+
+  switchTab(e) {
+    const index = e.currentTarget.dataset.index;
+    this.setData({ activeTab: index });
+    this.filterAppointments();
+  },
+
+  filterAppointments() {
+    const statusMap = ['pending', 'confirmed', 'completed', 'cancelled'];
+    const status = statusMap[this.data.activeTab];
+    
+    const filtered = this.data.appointments.filter(a => a.status === status);
+    this.setData({ filteredAppointments: filtered });
+  },
+
+  cancelAppointment(e) {
+    const id = e.currentTarget.dataset.id;
+    
+    wx.showModal({
+      title: '确认取消',
+      content: '确定要取消这个预约吗？',
+      success: (res) => {
+        if (res.confirm) {
+          getApp().request({
+            url: `/appointments/${id}/status`,
+            method: 'PATCH',
+            data: { status: 'cancelled' }
+          }).then(() => {
+            wx.showToast({ title: '已取消', icon: 'success' });
+            this.loadAppointments();
+          });
+        }
+      }
+    });
+  },
+
+  confirmComplete(e) {
+    const id = e.currentTarget.dataset.id;
+    
+    wx.showModal({
+      title: '确认完成',
+      content: '确认已完成这节课程吗？',
+      success: (res) => {
+        if (res.confirm) {
+          getApp().request({
+            url: `/appointments/${id}/status`,
+            method: 'PATCH',
+            data: { status: 'completed' }
+          }).then(() => {
+            wx.showToast({ title: '已完成', icon: 'success' });
+            this.loadAppointments();
+          });
+        }
+      }
+    });
+  },
+
+  makePhoneCall(e) {
+    const phone = e.currentTarget.dataset.phone;
+    wx.makePhoneCall({
+      phoneNumber: phone
+    });
+  }
+});
+
+// ========== /pages/appointment/list.wxml ==========
+`<view class="container">
+  <!-- 标签栏 -->
+  <view class="tabs">
+    <view class="tab-item {{activeTab === index ? 'active' : ''}}" 
+          wx:for="{{tabs}}" 
+          wx:key="index"
+          bindtap="switchTab"
+          data-index="{{index}}">
+      {{item}}
+    </view>
+  </view>
+  
+  <!-- 预约列表 -->
+  <view class="appointment-list">
+    <view class="appointment-card" wx:for="{{filteredAppointments}}" wx:key="id">
+      <view class="appointment-header">
+        <view class="course-info">
+          <text class="course-name">{{item.course_name}}</text>
+          <text class="teacher-name">{{item.teacher_name}}老师</text>
+        </view>
+        <view class="status status-{{item.status}}">
+          {{item.status === 'pending' ? '待确认' : ''}}
+          {{item.status === 'confirmed' ? '已确认' : ''}}
+          {{item.status === 'completed' ? '已完成' : ''}}
+          {{item.status === 'cancelled' ? '已取消' : ''}}
+        </view>
+      </view>
+      
+      <view class="appointment-body">
+        <view class="info-item">
+          <text class="info-label">上课时间</text>
+          <text class="info-value">{{item.appointment_date}} {{item.start_time}}-{{item.end_time}}</text>
+        </view>
+        <view class="info-item">
+          <text class="info-label">课程费用</text>
+          <text class="info-value price">¥{{item.price}}</text>
+        </view>
+        <view class="info-item" wx:if="{{item.notes}}">
+          <text class="info-label">备注</text>
+          <text class="info-value">{{item.notes}}</text>
+        </view>
+      </view>
+      
+      <view class="appointment-footer" wx:if="{{item.status !== 'cancelled' && item.status !== 'completed'}}">
+        <button class="action-btn" wx:if="{{item.status === 'pending'}}" 
+                bindtap="cancelAppointment" data-id="{{item.id}}">
+          取消预约
+        </button>
+        <button class="action-btn primary" wx:if="{{item.status === 'confirmed'}}"
+                bindtap="confirmComplete" data-id="{{item.id}}">
+          确认完成
+        </button>
+        <button class="action-btn" bindtap="makePhoneCall" data-phone="{{item.teacher_phone}}">
+          联系老师
+        </button>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 空状态 -->
+  <view wx:if="{{filteredAppointments.length === 0}}" class="empty">
+    <text class="empty-icon">📅</text>
+    <text class="empty-text">暂无预约记录</text>
+  </view>
+</view>`
+
+// ========== /pages/appointment/list.wxss ==========
+`.tabs {
+  display: flex;
+  background: white;
+  padding: 0 20rpx;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.tab-item {
+  flex: 1;
+  text-align: center;
+  padding: 30rpx 0;
+  font-size: 30rpx;
+  color: #666;
+  position: relative;
+}
+
+.tab-item.active {
+  color: #4A90E2;
+  font-weight: bold;
+}
+
+.tab-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60rpx;
+  height: 4rpx;
+  background: #4A90E2;
+  border-radius: 2rpx;
+}
+
+.appointment-list {
+  padding: 20rpx;
+}
+
+.appointment-card {
+  background: white;
+  border-radius: 20rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0,0,0,0.05);
+}
+
+.appointment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+  padding-bottom: 20rpx;
+  border-bottom: 1rpx solid #eee;
+}
+
+.course-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.course-name {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10rpx;
+}
+
+.teacher-name {
+  font-size: 28rpx;
+  color: #666;
+}
+
+.status {
+  padding: 8rpx 20rpx;
+  border-radius: 20rpx;
+  font-size: 24rpx;
+}
+
+.status-pending {
+  background: #fff7e6;
+  color: #ff9500;
+}
+
+.status-confirmed {
+  background: #e6f7ff;
+  color: #1890ff;
+}
+
+.status-completed {
+  background: #f0f9ff;
+  color: #52c41a;
+}
+
+.status-cancelled {
+  background: #fff1f0;
+  color: #ff4d4f;
+}
+
+.appointment-body {
+  margin: 20rpx 0;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15rpx;
+}
+
+.info-label {
+  font-size: 26rpx;
+  color: #999;
+}
+
+.info-value {
+  font-size: 26rpx;
+  color: #333;
+}
+
+.info-value.price {
+  color: #ff4444;
+  font-weight: bold;
+}
+
+.appointment-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 20rpx;
+  padding-top: 20rpx;
+  border-top: 1rpx solid #eee;
+}
+
+.action-btn {
+  padding: 10rpx 30rpx;
+  border-radius: 30rpx;
+  font-size: 26rpx;
+  background: #f5f5f5;
+  color: #666;
+  border: none;
+}
+
+.action-btn.primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.empty {
+  text-align: center;
+  padding: 100rpx 0;
+  color: #999;
+}
+
+.empty-icon {
+  font-size: 100rpx;
+  display: block;
+  margin-bottom: 20rpx;
+}
+
+.empty-text {
+  font-size: 28rpx;
+}`
+
+// ========== /pages/appointment/list.json ==========
+// {
+//   "navigationBarTitleText": "我的课程",
+//   "enablePullDownRefresh": true
+// }
+
+// ========== /pages/my/index.js ==========
+Page({
+  data: {
+    userInfo: null,
+    role: '',
+    stats: {
+      totalCourses: 0,
+      totalAmount: 0,
+      totalHours: 0
+    },
+    menuItems: []
+  },
+
+  onLoad() {
+    this.loadUserInfo();
+    this.loadStats();
+  },
+
+  onShow() {
+    this.loadUserInfo();
+  },
+
+  loadUserInfo() {
+    const userInfo = getApp().globalData.userInfo;
+    const role = getApp().globalData.role;
+    
+    if (!userInfo) {
+      wx.redirectTo({ url: '/pages/login/login' });
+      return;
+    }
+    
+    this.setData({ 
+      userInfo,
+      role,
+      menuItems: this.getMenuItems(role)
+    });
+  },
+
+  getMenuItems(role) {
+    const items = [
+      { id: 'profile', icon: '👤', title: '个人资料', url: '/pages/my/profile' },
+      { id: 'history', icon: '📚', title: '课程记录', url: '/pages/my/history' }
+    ];
+    
+    if (role === 'teacher') {
+      items.push(
+        { id: 'schedule', icon: '📅', title: '时间管理', url: '/pages/teacher/schedule' },
+        { id: 'income', icon: '💰', title: '收入统计', url: '/pages/teacher/income' }
+      );
+    } else if (role === 'admin') {
+      items.push(
+        { id: 'admin', icon: '🔧', title: '后台管理', url: '/pages/admin/dashboard' }
+      );
+    }
+    
+    items.push(
+      { id: 'feedback', icon: '💬', title: '意见反馈', url: '/pages/my/feedback' },
+      { id: 'about', icon: 'ℹ️', title: '关于我们', url: '/pages/my/about' },
+      { id: 'settings', icon: '⚙️', title: '设置', url: '/pages/my/settings' }
+    );
+    
+    return items;
+  },
+
+  loadStats() {
+    // 加载统计数据
+    // 这里应该调用API获取实际数据
+    this.setData({
+      stats: {
+        totalCourses: 24,
+        totalAmount: 4800,
+        totalHours: 24
+      }
+    });
+  },
+
+  navigateTo(e) {
+    const url = e.currentTarget.dataset.url;
+    if (url) {
+      wx.navigateTo({ url });
+    } else {
+      wx.showToast({ title: '功能开发中', icon: 'none' });
+    }
+  },
+
+  logout() {
+    wx.showModal({
+      title: '确认退出',
+      content: '确定要退出登录吗？',
+      success: (res) => {
+        if (res.confirm) {
+          wx.clearStorageSync();
+          getApp().globalData.token = null;
+          getApp().globalData.userInfo = null;
+          getApp().globalData.role = null;
+          wx.redirectTo({ url: '/pages/login/login' });
+        }
+      }
+    });
+  }
+});
+
+// ========== /pages/my/index.wxml ==========
+`<view class="my-container">
+  <!-- 用户信息 -->
+  <view class="user-header">
+    <image class="user-avatar" src="{{userInfo.avatar || '/images/default-avatar.png'}}"></image>
+    <view class="user-info">
+      <view class="user-name">{{userInfo.name || '用户'}}</view>
+      <view class="user-role">
+        {{role === 'teacher' ? '教师' : role === 'admin' ? '管理员' : '学生'}}
+      </view>
+    </view>
+  </view>
+  
+  <!-- 统计信息 -->
+  <view class="stats-card" wx:if="{{role === 'student'}}">
+    <view class="stat-item">
+      <view class="stat-value">{{stats.totalCourses}}</view>
+      <view class="stat-label">总课程</view>
+    </view>
+    <view class="stat-item">
+      <view class="stat-value">{{stats.totalHours}}</view>
+      <view class="stat-label">学习时长</view>
+    </view>
+    <view class="stat-item">
+      <view class="stat-value">{{stats.totalAmount}}</view>
+      <view class="stat-label">总消费</view>
+    </view>
+  </view>
+  
+  <!-- 功能菜单 -->
+  <view class="menu-list">
+    <view class="menu-item" 
+          wx:for="{{menuItems}}" 
+          wx:key="id"
+          bindtap="navigateTo"
+          data-url="{{item.url}}">
+      <view class="menu-left">
+        <text class="menu-icon">{{item.icon}}</text>
+        <text class="menu-title">{{item.title}}</text>
+      </view>
+      <text class="menu-arrow">></text>
+    </view>
+  </view>
+  
+  <!-- 退出按钮 -->
+  <view class="logout-section">
+    <button class="logout-btn" bindtap="logout">退出登录</button>
+  </view>
+</view>`
+
+// ========== /pages/my/index.wxss ==========
+`.my-container {
+  min-height: 100vh;
+  background: #f5f5f5;
+}
+
+.user-header {
+  display: flex;
+  align-items: center;
+  padding: 40rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.user-avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 60rpx;
+  border: 4rpx solid white;
+  margin-right: 30rpx;
+}
+
+.user-info {
+  flex: 1;
+}
+
+.user-name {
+  font-size: 36rpx;
+  color: white;
+  font-weight: bold;
+  margin-bottom: 10rpx;
+}
+
+.user-role {
+  font-size: 28rpx;
+  color: rgba(255,255,255,0.8);
+}
+
+.stats-card {
+  display: flex;
+  background: white;
+  margin: 20rpx;
+  padding: 30rpx;
+  border-radius: 20rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0,0,0,0.05);
+}
+
+.stat-item {
+  flex: 1;
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 40rpx;
+  font-weight: bold;
+  color: #4A90E2;
+  margin-bottom: 10rpx;
+}
+
+.stat-label {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.menu-list {
+  background: white;
+  margin: 20rpx;
+  border-radius: 20rpx;
+  overflow: hidden;
+}
+
+.menu-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.menu-item:last-child {
+  border-bottom: none;
+}
+
+.menu-left {
+  display: flex;
+  align-items: center;
+}
+
+.menu-icon {
+  font-size: 36rpx;
+  margin-right: 20rpx;
+}
+
+.menu-title {
+  font-size: 30rpx;
+  color: #333;
+}
+
+.menu-arrow {
+  font-size: 28rpx;
+  color: #999;
+}
+
+.logout-section {
+  padding: 40rpx;
+}
+
+.logout-btn {
+  width: 100%;
+  height: 90rpx;
+  background: white;
+  color: #ff4444;
+  border: 2rpx solid #ff4444;
+  border-radius: 45rpx;
+  font-size: 32rpx;
+}`
+
+// ========== /pages/my/index.json ==========
+// {
+//   "navigationBarTitleText": "我的"
+// }
+
+// ========== /project.config.json ==========
+// {
+//   "description": "琴房管理系统小程序",
+//   "packOptions": {
+//     "ignore": []
+//   },
+//   "setting": {
+//     "urlCheck": false,
+//     "es6": true,
+//     "enhance": true,
+//     "postcss": true,
+//     "preloadBackgroundData": false,
+//     "minified": true,
+//     "newFeature": false,
+//     "coverView": true,
+//     "nodeModules": false,
+//     "autoAudits": false,
+//     "showShadowRootInWxmlPanel": true,
+//     "scopeDataCheck": false,
+//     "uglifyFileName": false,
+//     "checkInvalidKey": true,
+//     "checkSiteMap": true,
+//     "uploadWithSourceMap": true,
+//     "compileHotReLoad": false,
+//     "lazyloadPlaceholderEnable": false,
+//     "useMultiFrameRuntime": true,
+//     "useApiHook": true,
+//     "useApiHostProcess": true,
+//     "babelSetting": {
+//       "ignore": [],
+//       "disablePlugins": [],
+//       "outputPath": ""
+//     },
+//     "enableEngineNative": false,
+//     "useIsolateContext": true,
+//     "userConfirmedBundleSwitch": false,
+//     "packNpmManually": false,
+//     "packNpmRelationList": [],
+//     "minifyWXSS": true,
+//     "showES6CompileOption": false
+//   },
+//   "compileType": "miniprogram",
+//   "libVersion": "2.19.4",
+//   "appid": "你的小程序AppID",
+//   "projectname": "music-room",
+//   "debugOptions": {
+//     "hidedInDevtools": []
+//   },
+//   "scripts": {},
+//   "staticServerOptions": {
+//     "baseURL": "",
+//     "servePath": ""
+//   },
+//   "isGameTourist": false,
+//   "condition": {
+//     "search": {
+//       "list": []
+//     },
+//     "conversation": {
+//       "list": []
+//     },
+//     "game": {
+//       "list": []
+//     },
+//     "plugin": {
+//       "list": []
+//     },
+//     "gamePlugin": {
+//       "list": []
+//     },
+//     "miniprogram": {
+//       "list": []
+//     }
+//   }
+// }
+
+// ========== /sitemap.json ==========
+// {
+//   "desc": "关于本文件的更多信息，请参考文档 https://developers.weixin.qq.com/miniprogram/dev/framework/sitemap.html",
+//   "rules": [{
+//     "action": "allow",
+//     "page": "*"
+//   }]
+// }

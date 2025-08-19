@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>琴房管理系统 - 管理后台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            width: 250px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 30px;
+            text-align: center;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .menu-item {
+            display: block;
+            padding: 15px 20px;
+            margin: 5px 0;
+            border-radius: 10px;
+            color: #333;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            width: 100%;
+            text-align: left;
+            font-size: 15px;
+        }
+
+        .menu-item:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .menu-item.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        /* 主内容区 */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .page-title {
+            font-size: 32px;
+            color: white;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        /* 统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* 表格样式 */
+        .data-table {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        /* 按钮样式 */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+            text-decoration: none;
+            color: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #56CCF2 0%, #2F80ED 100%);
+            box-shadow: 0 4px 15px rgba(47, 128, 237, 0.3);
+        }
+
+        /* 表单样式 */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: white;
+            font-weight: 600;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        /* 模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* 页面切换动画 */
+        .page {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 加载动画 */
+        .loader {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* 工资详情样式 */
+        .salary-summary {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .salary-month {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .salary-total {
+            font-size: 32px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* 课程类型卡片 */
+        .course-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .course-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .course-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .course-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .course-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #ff4444;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            display: none;
+        }
+
+        .course-card:hover .delete-btn {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 侧边栏 -->
+        <div class="sidebar">
+            <div class="logo">🎵 琴房管理系统</div>
+            <button class="menu-item active" onclick="showPage('dashboard')">
+                📊 数据概览
+            </button>
+            <button class="menu-item" onclick="showPage('courses')">
+                🎹 课程管理
+            </button>
+            <button class="menu-item" onclick="showPage('teachers')">
+                👨‍🏫 教师管理
+            </button>
+            <button class="menu-item" onclick="showPage('appointments')">
+                📅 预约管理
+            </button>
+            <button class="menu-item" onclick="showPage('salary')">
+                💰 工资结算
+            </button>
+            <button class="menu-item" onclick="showPage('students')">
+                👥 学生管理
+            </button>
+            <button class="menu-item" onclick="logout()">
+                🚪 退出登录
+            </button>
+        </div>
+
+        <!-- 主内容区 -->
+        <div class="main-content">
+            <!-- 数据概览页面 -->
+            <div id="dashboard" class="page active">
+                <h1 class="page-title">数据概览</h1>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">总学生数</div>
+                        <div class="stat-value">234</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">总教师数</div>
+                        <div class="stat-value">18</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">今日预约</div>
+                        <div class="stat-value">42</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">本月收入</div>
+                        <div class="stat-value">¥28,500</div>
+                    </div>
+                </div>
+
+                <div class="data-table">
+                    <h2 style="margin-bottom: 20px; color: #333;">最近预约</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>学生</th>
+                                <th>教师</th>
+                                <th>课程</th>
+                                <th>时间</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>张三</td>
+                                <td>李老师</td>
+                                <td>钢琴</td>
+                                <td>2024-01-15 14:00</td>
+                                <td><span style="color: #28a745;">已确认</span></td>
+                                <td>
+                                    <button class="btn btn-sm" onclick="viewAppointment(1)">查看</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>李四</td>
+                                <td>王老师</td>
+                                <td>吉他</td>
+                                <td>2024-01-15 15:00</td>
+                                <td><span style="color: #ffc107;">待确认</span></td>
+                                <td>
+                                    <button class="btn btn-sm" onclick="confirmAppointment(2)">确认</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>王五</td>
+                                <td>赵老师</td>
+                                <td>声乐</td>
+                                <td>2024-01-15 16:00</td>
+                                <td><span style="color: #28a745;">已确认</span></td>
+                                <td>
+                                    <button class="btn btn-sm" onclick="viewAppointment(3)">查看</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 课程管理页面 -->
+            <div id="courses" class="page">
+                <h1 class="page-title">课程管理</h1>
+                
+                <button class="btn" onclick="showAddCourseModal()" style="margin-bottom: 20px;">
+                    ➕ 添加课程类型
+                </button>
+
+                <div class="course-grid" id="courseGrid">
+                    <div class="course-card">
+                        <button class="delete-btn" onclick="deleteCourse(1)">×</button>
+                        <div class="course-icon">🎹</div>
+                        <div class="course-name">钢琴</div>
+                    </div>
+                    <div class="course-card">
+                        <button class="delete-btn" onclick="deleteCourse(2)">×</button>
+                        <div class="course-icon">🎸</div>
+                        <div class="course-name">吉他</div>
+                    </div>
+                    <div class="course-card">
+                        <button class="delete-btn" onclick="deleteCourse(3)">×</button>
+                        <div class="course-icon">🎤</div>
+                        <div class="course-name">声乐</div>
+                    </div>
+                    <div class="course-card">
+                        <button class="delete-btn" onclick="deleteCourse(4)">×</button>
+                        <div class="course-icon">🎻</div>
+                        <div class="course-name">古筝</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 教师管理页面 -->
+            <div id="teachers" class="page">
+                <h1 class="page-title">教师管理</h1>
+                
+                <button class="btn" onclick="showAddTeacherModal()" style="margin-bottom: 20px;">
+                    ➕ 添加教师
+                </button>
+
+                <div class="data-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>姓名</th>
+                                <th>电话</th>
+                                <th>教授课程</th>
+                                <th>经验年限</th>
+                                <th>评分</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="teacherList">
+                            <tr>
+                                <td>李老师</td>
+                                <td>138****1234</td>
+                                <td>钢琴、声乐</td>
+                                <td>5年</td>
+                                <td>⭐ 4.8</td>
+                                <td><span style="color: #28a745;">在职</span></td>
+                                <td>
+                                    <button class="btn btn-sm" onclick="editTeacher(1)">编辑</button>
+                                    <button class="btn btn-secondary btn-sm" onclick="viewTeacherDetail(1)">详情</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>王老师</td>
+                                <td>139****5678</td>
+                                <td>吉他</td>
+                                <td>3年</td>
+                                <td>⭐ 4.9</td>
+                                <td><span style="color: #28a745;">在职</span></td>
+                                <td>
+                                    <button class="btn btn-sm" onclick="editTeacher(2)">编辑</button>
+                                    <button class="btn btn-secondary btn-sm" onclick="viewTeacherDetail(2)">详情</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 预约管理页面 -->
+            <div id="appointments" class="page">
+                <h1 class="page-title">预约管理</h1>
+                
+                <div style="margin-bottom: 20px;">
+                    <select class="form-control" style="width: 200px; display: inline-block;" onchange="filterAppointments(this.value)">
+                        <option value="all">全部状态</option>
+                        <option value="pending">待确认</option>
+                        <option value="confirmed">已确认</option>
+                        <option value="completed">已完成</option>
+                        <option value="cancelled">已取消</option>
+                    </select>
+                    
+                    <input type="date" class="form-control" style="width: 200px; display: inline-block; margin-left: 10px;" onchange="filterByDate(this.value)">
+                </div>
+
+                <div class="data-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>预约ID</th>
+                                <th>学生</th>
+                                <th>教师</th>
+                                <th>课程</th>
+                                <th>日期</th>
+                                <th>时间</th>
+                                <th>价格</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="appointmentList">
+                            <tr>
+                                <td>#001</td>
+                                <td>张三</td>
+                                <td>李老师</td>
+                                <td>钢琴</td>
+                                <td>2024-01-15</td>
+                                <td>14:00-15:00</td>
+                                <td>¥200</td>
+                                <td><span style="color: #ffc107;">待确认</span></td>
+                                <td>
+                                    <button class="btn btn-success btn-sm" onclick="confirmAppointment(1)">确认</button>
+                                    <button class="btn btn-secondary btn-sm" onclick="cancelAppointment(1)">取消</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 工资结算页面 -->
+            <div id="salary" class="page">
+                <h1 class="page-title">工资结算</h1>
+                
+                <div class="salary-summary">
+                    <div>
+                        <div class="salary-month">2024年1月</div>
+                        <div style="color: #666; margin-top: 5px;">
+                            <input type="month" class="form-control" style="width: 200px; display: inline-block;" value="2024-01" onchange="changeSalaryMonth(this.value)">
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="color: #666; font-size: 14px;">工资总额</div>
+                        <div class="salary-total">¥45,280</div>
+                    </div>
+                </div>
+
+                <button class="btn btn-success" onclick="generateSalary()" style="margin-bottom: 20px;">
+                    📊 生成工资单
+                </button>
+                <button class="btn" onclick="exportSalary()" style="margin-bottom: 20px; margin-left: 10px;">
+                    📥 导出Excel
+                </button>
+
+                <div class="data-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>教师</th>
+                                <th>总课时</th>
+                                <th>完成课程数</th>
+                                <th>应付工资</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="salaryList">
+                            <tr>
+                                <td>李老师</td>
+                                <td>48小时</td>
+                                <td>48节</td>
+                                <td>¥9,600</td>
+                                <td><span style="color: #ffc107;">待发放</span></td>
+                                <td>
+                                    <button class="btn btn-sm" onclick="viewSalaryDetail(1)">详情</button>
+                                    <button class="btn btn-success btn-sm" onclick="paySalary(1)">发放</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>王老师</td>
+                                <td>36小时</td>
+                                <td>36节</td>
+                                <td>¥7,200</td>
+                                <td><span style="color: #ffc107;">待发放</span></td>
+                                <td>
+                                    <button class="btn btn-sm" onclick="viewSalaryDetail(2)">详情</button>
+                                    <button class="btn btn-success btn-sm" onclick="paySalary(2)">发放</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 学生管理页面 -->
+            <div id="students" class="page">
+                <h1 class="page-title">学生管理</h1>
+                
+                <div style="margin-bottom: 20px;">
+                    <input type="text" class="form-control" style="width: 300px; display: inline-block;" placeholder="搜索学生姓名或电话..." onkeyup="searchStudent(this.value)">
+                </div>
+
+                <div class="data-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>学生ID</th>
+                                <th>姓名</th>
+                                <th>电话</th>
+                                <th>注册时间</th>
+                                <th>总课程数</th>
+                                <th>消费总额</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentList">
+                            <tr>
+                                <td>#S001</td>
+                                <td>张三</td>
+                                <td>136****1234</td>
+                                <td>2023-09-01</td>
+                                <td>24节</td>
+                                <td>¥4,800</td>
+                                <td>
+                                    <button class="btn btn-sm" onclick="viewStudent(1)">查看</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>#S002</td>
+                                <td>李四</td>
+                                <td>137****5678</td>
+                                <td>2023-10-15</td>
+                                <td>18节</td>
+                                <td>¥3,600</td>
+                                <td>
+                                    <button class="btn btn-sm" onclick="viewStudent(2)">查看</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加课程模态框 -->
+    <div id="addCourseModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">添加课程类型</div>
+            <div class="form-group">
+                <label class="form-label" style="color: #333;">课程名称</label>
+                <input type="text" class="form-control" id="courseName" placeholder="输入课程名称">
+            </div>
+            <div class="form-group">
+                <label class="form-label" style="color: #333;">课程描述</label>
+                <textarea class="form-control" id="courseDesc" rows="3" placeholder="输入课程描述"></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label" style="color: #333;">选择图标</label>
+                <select class="form-control" id="courseIcon">
+                    <option value="🎹">🎹 钢琴</option>
+                    <option value="🎸">🎸 吉他</option>
+                    <option value="🎤">🎤 声乐</option>
+                    <option value="🎻">🎻 弦乐</option>
+                    <option value="🥁">🥁 打击乐</option>
+                    <option value="🎺">🎺 管乐</option>
+                </select>
+            </div>
+            <div style="text-align: right;">
+                <button class="btn btn-secondary" onclick="closeModal('addCourseModal')">取消</button>
+                <button class="btn" onclick="saveCourse()" style="margin-left: 10px;">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加教师模态框 -->
+    <div id="addTeacherModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">添加教师</div>
+            <div class="form-group">
+                <label class="form-label" style="color: #333;">教师姓名</label>
+                <input type="text" class="form-control" id="teacherName" placeholder="输入教师姓名">
+            </div>
+            <div class="form-group">
+                <label class="form-label" style="color: #333;">联系电话</label>
+                <input type="tel" class="form-control" id="teacherPhone" placeholder="输入联系电话">
+            </div>
+            <div class="form-group">
+                <label class="form-label" style="color: #333;">教授课程</label>
+                <div id="teacherCourses">
+                    <label style="display: inline-block; margin-right: 15px; color: #333;">
+                        <input type="checkbox" value="钢琴"> 钢琴
+                    </label>
+                    <label style="display: inline-block; margin-right: 15px; color: #333;">
+                        <input type="checkbox" value="吉他"> 吉他
+                    </label>
+                    <label style="display: inline-block; margin-right: 15px; color: #333;">
+                        <input type="checkbox" value="声乐"> 声乐
+                    </label>
+                    <label style="display: inline-block; margin-right: 15px; color: #333;">
+                        <input type="checkbox" value="古筝"> 古筝
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label" style="color: #333;">经验年限</label>
+                <input type="number" class="form-control" id="teacherExperience" placeholder="输入经验年限">
+            </div>
+            <div style="text-align: right;">
+                <button class="btn btn-secondary" onclick="closeModal('addTeacherModal')">取消</button>
+                <button class="btn" onclick="saveTeacher()" style="margin-left: 10px;">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 页面切换
+        function showPage(pageId) {
+            // 隐藏所有页面
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // 显示选中页面
+            document.getElementById(pageId).classList.add('active');
+            
+            // 更新菜单激活状态
+            document.querySelectorAll('.menu-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // 加载页面数据
+            loadPageData(pageId);
+        }
+
+        // 加载页面数据
+        function loadPageData(pageId) {
+            // 这里应该调用后端API获取实际数据
+            console.log('Loading data for:', pageId);
+            
+            // 模拟加载动画
+            const page = document.getElementById(pageId);
+            const originalContent = page.innerHTML;
+            page.innerHTML = '<div class="loader"></div>';
+            
+            setTimeout(() => {
+                page.innerHTML = originalContent;
+            }, 500);
+        }
+
+        // 模态框操作
+        function showAddCourseModal() {
+            document.getElementById('addCourseModal').classList.add('show');
+        }
+
+        function showAddTeacherModal() {
+            document.getElementById('addTeacherModal').classList.add('show');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+        }
+
+        // 保存课程
+        function saveCourse() {
+            const name = document.getElementById('courseName').value;
+            const desc = document.getElementById('courseDesc').value;
+            const icon = document.getElementById('courseIcon').value;
+            
+            if (!name) {
+                alert('请输入课程名称');
+                return;
+            }
+            
+            // 这里应该调用API保存数据
+            console.log('Saving course:', { name, desc, icon });
+            
+            // 添加到页面
+            const courseGrid = document.getElementById('courseGrid');
+            const newCard = document.createElement('div');
+            newCard.className = 'course-card';
+            newCard.innerHTML = `
+                <button class="delete-btn" onclick="deleteCourse(${Date.now()})">×</button>
+                <div class="course-icon">${icon}</div>
+                <div class="course-name">${name}</div>
+            `;
+            courseGrid.appendChild(newCard);
+            
+            // 关闭模态框
+            closeModal('addCourseModal');
+            
+            // 清空表单
+            document.getElementById('courseName').value = '';
+            document.getElementById('courseDesc').value = '';
+        }
+
+        // 保存教师
+        function saveTeacher() {
+            const name = document.getElementById('teacherName').value;
+            const phone = document.getElementById('teacherPhone').value;
+            const experience = document.getElementById('teacherExperience').value;
+            
+            if (!name || !phone) {
+                alert('请填写完整信息');
+                return;
+            }
+            
+            // 获取选中的课程
+            const courses = [];
+            document.querySelectorAll('#teacherCourses input:checked').forEach(checkbox => {
+                courses.push(checkbox.value);
+            });
+            
+            console.log('Saving teacher:', { name, phone, courses, experience });
+            
+            // 关闭模态框
+            closeModal('addTeacherModal');
+            
+            // 刷新教师列表
+            loadPageData('teachers');
+        }
+
+        // 删除课程
+        function deleteCourse(id) {
+            if (confirm('确定要删除这个课程吗？')) {
+                console.log('Deleting course:', id);
+                event.target.parentElement.remove();
+            }
+        }
+
+        // 确认预约
+        function confirmAppointment(id) {
+            console.log('Confirming appointment:', id);
+            alert('预约已确认');
+        }
+
+        // 取消预约
+        function cancelAppointment(id) {
+            if (confirm('确定要取消这个预约吗？')) {
+                console.log('Cancelling appointment:', id);
+                alert('预约已取消');
+            }
+        }
+
+        // 生成工资单
+        function generateSalary() {
+            const month = document.querySelector('input[type="month"]').value;
+            console.log('Generating salary for:', month);
+            alert(`正在生成${month}的工资单...`);
+        }
+
+        // 导出工资单
+        function exportSalary() {
+            console.log('Exporting salary data...');
+            alert('正在导出Excel文件...');
+        }
+
+        // 发放工资
+        function paySalary(teacherId) {
+            if (confirm('确定要发放工资吗？')) {
+                console.log('Paying salary to teacher:', teacherId);
+                alert('工资已发放');
+            }
+        }
+
+        // 查看详情
+        function viewSalaryDetail(teacherId) {
+            console.log('Viewing salary detail for teacher:', teacherId);
+            alert('查看教师工资详情');
+        }
+
+        function viewStudent(studentId) {
+            console.log('Viewing student:', studentId);
+            alert('查看学生详情');
+        }
+
+        function viewTeacherDetail(teacherId) {
+            console.log('Viewing teacher:', teacherId);
+            alert('查看教师详情');
+        }
+
+        function viewAppointment(id) {
+            console.log('Viewing appointment:', id);
+            alert('查看预约详情');
+        }
+
+        // 搜索学生
+        function searchStudent(keyword) {
+            console.log('Searching student:', keyword);
+            // 实现搜索逻辑
+        }
+
+        // 过滤预约
+        function filterAppointments(status) {
+            console.log('Filtering appointments by status:', status);
+            // 实现过滤逻辑
+        }
+
+        function filterByDate(date) {
+            console.log('Filtering appointments by date:', date);
+            // 实现日期过滤逻辑
+        }
+
+        // 切换工资月份
+        function changeSalaryMonth(month) {
+            console.log('Changing salary month to:', month);
+            // 重新加载该月份的工资数据
+            loadPageData('salary');
+        }
+
+        // 编辑教师
+        function editTeacher(teacherId) {
+            console.log('Editing teacher:', teacherId);
+            showAddTeacherModal();
+            // 填充教师信息到表单
+        }
+
+        // 退出登录
+        function logout() {
+            if (confirm('确定要退出登录吗？')) {
+                console.log('Logging out...');
+                window.location.href = '/login';
+            }
+        }
+
+        // 页面加载时初始化
+        window.onload = function() {
+            loadPageData('dashboard');
+        };
+
+        // 点击模态框外部关闭
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.classList.remove('show');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+// ========== /pages/course/list.wxml ==========
+`<view class="container">
+  <view class="course-grid">
+    <view class="course-card" 
+          wx:for="{{courseTypes}}" 
+          wx:key="id"
+          bindtap="selectCourse"
+          data-id="{{item.id}}"
+          data-name="{{item.name}}">
+      <view class="course-icon">{{item.icon}}</view>
+      <view class="course-name">{{item.name}}</view>
+      <view class="course-desc">{{item.description || '专业教学，快速提升'}}</view>
+      <view class="course-stats">
+        <text class="stat">{{item.teacherCount}}位老师</text>
+        <text class="stat">{{item.studentCount}}位学生</text>
+      </view>
+    </view>
+  </view>
+</view>`

@@ -1,0 +1,77 @@
+// ========== /pages/appointment/create.wxml ==========
+`<view class="container">
+  <view class="form-card card">
+    <!-- 教师信息 -->
+    <view class="teacher-info-bar">
+      <text class="label">预约教师</text>
+      <text class="value">{{teacherName}}</text>
+    </view>
+    
+    <!-- 课程选择 -->
+    <view class="form-item">
+      <text class="form-label">课程类型</text>
+      <picker bindchange="bindCourseChange" range="{{courseTypes}}" range-key="name">
+        <view class="picker">
+          {{selectedCourse ? selectedCourse.name : '请选择课程'}}
+          <text class="arrow">></text>
+        </view>
+      </picker>
+    </view>
+    
+    <!-- 日期选择 -->
+    <view class="form-item">
+      <text class="form-label">上课日期</text>
+      <picker mode="date" value="{{selectedDate}}" bindchange="bindDateChange">
+        <view class="picker">
+          {{selectedDate}}
+          <text class="arrow">></text>
+        </view>
+      </picker>
+    </view>
+    
+    <!-- 时长选择 -->
+    <view class="form-item">
+      <text class="form-label">课程时长</text>
+      <picker bindchange="bindDurationChange" range="{{['60分钟', '90分钟', '120分钟']}}">
+        <view class="picker">
+          {{duration}}分钟
+          <text class="arrow">></text>
+        </view>
+      </picker>
+    </view>
+  </view>
+  
+  <!-- 时间选择 -->
+  <view class="time-section card">
+    <text class="section-title">选择时间</text>
+    <view class="time-grid">
+      <view class="time-slot {{!item.available ? 'disabled' : ''}} {{selectedTime === item.value ? 'selected' : ''}}"
+            wx:for="{{timeSlots}}" 
+            wx:key="value"
+            bindtap="selectTime"
+            data-time="{{item}}">
+        {{item.label}}
+      </view>
+    </view>
+  </view>
+  
+  <!-- 备注 -->
+  <view class="notes-section card">
+    <text class="section-title">备注信息</text>
+    <textarea class="notes-input" 
+              placeholder="请输入学习需求或其他备注..." 
+              bindinput="inputNotes"
+              value="{{notes}}"></textarea>
+  </view>
+  
+  <!-- 费用信息 -->
+  <view class="price-bar">
+    <text class="price-label">课程费用</text>
+    <text class="price-value">¥{{price}}</text>
+  </view>
+  
+  <!-- 提交按钮 -->
+  <view class="submit-section">
+    <button class="submit-btn" bindtap="submitAppointment">确认预约</button>
+  </view>
+</view>`

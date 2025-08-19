@@ -1,0 +1,52 @@
+// ========== /pages/teacher/list.wxml ==========
+`<view class="container">
+  <!-- 筛选栏 -->
+  <view class="filter-bar">
+    <picker bindchange="changeFilter" value="{{filterIndex}}" range="{{filterOptions}}">
+      <view class="filter-picker">
+        {{filterOptions[filterIndex]}} <text class="arrow">▼</text>
+      </view>
+    </picker>
+  </view>
+  
+  <!-- 教师列表 -->
+  <view class="teacher-list">
+    <view class="teacher-item card" wx:for="{{teachers}}" wx:key="id">
+      <view class="teacher-header" bindtap="viewTeacherDetail" data-id="{{item.id}}">
+        <image class="teacher-avatar" src="{{item.avatar}}"></image>
+        <view class="teacher-info">
+          <view class="teacher-name">
+            {{item.name}}
+            <text class="teacher-tag" wx:for="{{item.tags}}" wx:key="*this" wx:for-item="tag">{{tag}}</text>
+          </view>
+          <view class="teacher-desc">{{item.experience_years}}年教龄 | {{item.total_students || 0}}位学生</view>
+          <view class="teacher-rating">
+            <text class="stars">⭐⭐⭐⭐⭐</text>
+            <text class="score">{{item.rating || 5.0}}分</text>
+          </view>
+        </view>
+      </view>
+      
+      <view class="teacher-intro">{{item.introduction || '专业认真，教学经验丰富'}}</view>
+      
+      <view class="teacher-footer">
+        <view class="price">
+          <text class="price-label">课时费</text>
+          <text class="price-value">¥{{item.price || 200}}/小时</text>
+        </view>
+        <button class="book-btn" bindtap="bookCourse" data-teacher="{{item}}">立即预约</button>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 加载状态 -->
+  <view wx:if="{{loading}}" class="loading">
+    <text>加载中...</text>
+  </view>
+  
+  <!-- 空状态 -->
+  <view wx:if="{{!loading && teachers.length === 0}}" class="empty">
+    <text class="empty-icon">📚</text>
+    <text class="empty-text">暂无教师信息</text>
+  </view>
+</view>`
