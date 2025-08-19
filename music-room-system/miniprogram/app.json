@@ -1,6 +1,6 @@
 
 {
-  "pages": [
+"pages": [
     "pages/index/index",
     "pages/login/login",
     "pages/course/list",
@@ -45,6 +45,16 @@
       }
     ]
   },
+  "cloud": true,  
   "sitemapLocation": "sitemap.json",
-  "lazyCodeLoading": "requiredComponents"
+  "lazyCodeLoading": "requiredComponents",
+  "permission": {
+    "scope.userLocation": {
+      "desc": "您的位置信息将用于查找附近的琴房"
+    }
+  },
+  "requiredPrivateInfos": [
+    "chooseLocation",
+    "getLocation"
+  ]
 }

@@ -1,0 +1,21 @@
+{
+  "containerPort": 80,
+  "minNum": 1,
+  "maxNum": 10,
+  "cpu": 0.5,
+  "mem": 1,
+  "policyType": "cpu",
+  "policyThreshold": 80,
+  "envParams": {
+    "MYSQL_USERNAME": "root",
+    "MYSQL_DATABASE": "music_room_db",
+    "JWT_SECRET": "your-jwt-secret-key",
+    "NODE_ENV": "production"
+  },
+  "customLogs": "stdout",
+  "initialDelaySeconds": 10,
+  "dataBaseName": "music_room_db",
+  "executeSQLs": [
+    "CREATE DATABASE IF NOT EXISTS music_room_db;"
+  ]
+}

@@ -1,4 +1,3 @@
-// ========== /pages/login/login.js ==========
 const app = getApp();
 
 Page({
@@ -35,8 +34,9 @@ Page({
     wx.login({
       success: (res) => {
         if (res.code) {
-          app.request({
-            url: '/auth/wxlogin',
+          // 使用云托管登录
+          app.callContainer({
+            path: '/api/auth/wxlogin',
             method: 'POST',
             data: {
               code: res.code,
@@ -52,6 +52,9 @@ Page({
             wx.setStorageSync('token', result.token);
             wx.setStorageSync('userInfo', result.user);
             
+            // 订阅消息授权（可选）
+            this.requestSubscribeMessage();
+            
             if (result.user.role === 'admin') {
               wx.redirectTo({ url: '/pages/admin/dashboard' });
             } else {
@@ -59,8 +62,28 @@ Page({
             }
           }).catch(() => {
             wx.hideLoading();
+            wx.showToast({
+              title: '登录失败',
+              icon: 'none'
+            });
           });
         }
+      }
+    });
+  },
+
+  // 请求订阅消息权限
+  requestSubscribeMessage() {
+    wx.requestSubscribeMessage({
+      tmplIds: [
+        'YOUR_TEMPLATE_ID_1', // 预约成功通知
+        'YOUR_TEMPLATE_ID_2'  // 课程提醒通知
+      ],
+      success(res) {
+        console.log('订阅消息授权结果:', res);
+      },
+      fail(err) {
+        console.log('订阅消息授权失败:', err);
       }
     });
   }

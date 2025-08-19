@@ -1,7 +1,9 @@
 <view class="my-container">
-  <!-- 用户信息 -->
+  <!-- 用户信息 - 添加点击更换头像功能 -->
   <view class="user-header">
-    <image class="user-avatar" src="{{userInfo.avatar || '/images/default-avatar.png'}}"></image>
+    <image class="user-avatar" 
+           src="{{userInfo.avatar || '/images/default-avatar.png'}}"
+           bindtap="changeAvatar"></image>
     <view class="user-info">
       <view class="user-name">{{userInfo.name || '用户'}}</view>
       <view class="user-role">

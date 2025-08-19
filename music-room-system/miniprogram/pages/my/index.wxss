@@ -1,5 +1,4 @@
-// ========== /pages/my/index.wxss ==========
-`.my-container {
+.my-container {
   min-height: 100vh;
   background: #f5f5f5;
 }
@@ -112,4 +111,4 @@
   border: 2rpx solid #ff4444;
   border-radius: 45rpx;
   font-size: 32rpx;
-}`
+}

@@ -1,4 +1,5 @@
-// ========== /pages/my/index.js ==========
+const app = getApp();
+
 Page({
   data: {
     userInfo: null,
@@ -21,8 +22,8 @@ Page({
   },
 
   loadUserInfo() {
-    const userInfo = getApp().globalData.userInfo;
-    const role = getApp().globalData.role;
+    const userInfo = app.globalData.userInfo;
+    const role = app.globalData.role;
     
     if (!userInfo) {
       wx.redirectTo({ url: '/pages/login/login' });
@@ -33,6 +34,86 @@ Page({
       userInfo,
       role,
       menuItems: this.getMenuItems(role)
+    });
+  },
+
+  // ===== 添加的云存储上传功能 =====
+  // 点击头像更换
+  changeAvatar() {
+    wx.chooseImage({
+      count: 1,
+      sizeType: ['compressed'],
+      sourceType: ['album', 'camera'],
+      success: (res) => {
+        const tempFilePath = res.tempFilePaths[0];
+        
+        wx.showLoading({ title: '上传中...' });
+        
+        // 使用云存储上传
+        wx.cloud.uploadFile({
+          cloudPath: `avatars/${Date.now()}-${Math.random().toString(36).substr(2)}.jpg`,
+          filePath: tempFilePath,
+          success: uploadRes => {
+            console.log('上传成功', uploadRes.fileID);
+            
+            // 更新用户头像
+            this.updateUserAvatar(uploadRes.fileID);
+          },
+          fail: err => {
+            wx.hideLoading();
+            console.error('上传失败', err);
+            wx.showToast({
+              title: '上传失败',
+              icon: 'none'
+            });
+          }
+        });
+      }
+    });
+  },
+
+  // 更新用户头像
+  updateUserAvatar(fileID) {
+    // 先获取临时链接
+    wx.cloud.getTempFileURL({
+      fileList: [fileID],
+      success: res => {
+        const tempFileURL = res.fileList[0].tempFileURL;
+        
+        // 调用后端API更新用户头像
+        app.callContainer({
+          path: '/api/user/avatar',
+          method: 'PUT',
+          data: {
+            avatar: tempFileURL
+          }
+        }).then(() => {
+          wx.hideLoading();
+          wx.showToast({
+            title: '头像更新成功',
+            icon: 'success'
+          });
+          
+          // 更新本地显示
+          const userInfo = this.data.userInfo;
+          userInfo.avatar = tempFileURL;
+          this.setData({ userInfo });
+          
+          // 更新全局数据
+          app.globalData.userInfo.avatar = tempFileURL;
+          wx.setStorageSync('userInfo', app.globalData.userInfo);
+        }).catch(() => {
+          wx.hideLoading();
+          wx.showToast({
+            title: '更新失败',
+            icon: 'none'
+          });
+        });
+      },
+      fail: err => {
+        wx.hideLoading();
+        console.error('获取临时链接失败', err);
+      }
     });
   },
 
