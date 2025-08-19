@@ -1,5 +1,4 @@
-// ========== /pages/admin/dashboard.wxss ==========
-`.stats-grid {
+.stats-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 20rpx;
@@ -161,4 +160,4 @@
   border-radius: 45rpx;
   font-size: 32rpx;
   border: none;
-}`
+}

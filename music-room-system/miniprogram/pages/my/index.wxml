@@ -1,5 +1,4 @@
-// ========== /pages/my/index.wxml ==========
-`<view class="my-container">
+<view class="my-container">
   <!-- 用户信息 -->
   <view class="user-header">
     <image class="user-avatar" src="{{userInfo.avatar || '/images/default-avatar.png'}}"></image>
@@ -46,4 +45,4 @@
   <view class="logout-section">
     <button class="logout-btn" bindtap="logout">退出登录</button>
   </view>
-</view>`
+</view>

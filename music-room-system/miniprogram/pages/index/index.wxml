@@ -1,5 +1,4 @@
-// ========== /pages/index/index.wxml ==========
-`<view class="index-container">
+<view class="index-container">
   <!-- 轮播图 -->
   <swiper class="banner" autoplay indicator-dots circular>
     <swiper-item wx:for="{{banners}}" wx:key="id">
@@ -68,4 +67,4 @@
       </view>
     </view>
   </view>
-</view>`
+</view>

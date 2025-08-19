@@ -1,5 +1,4 @@
-// ========== /pages/course/list.wxml ==========
-`<view class="container">
+<view class="container">
   <view class="course-grid">
     <view class="course-card" 
           wx:for="{{courseTypes}}" 
@@ -16,4 +15,4 @@
       </view>
     </view>
   </view>
-</view>`
+</view>

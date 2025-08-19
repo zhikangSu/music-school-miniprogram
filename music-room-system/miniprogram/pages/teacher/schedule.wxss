@@ -1,5 +1,4 @@
-// ========== /pages/teacher/schedule.wxss ==========
-`.week-selector {
+.week-selector {
   display: flex;
   background: white;
   padding: 20rpx;
@@ -78,4 +77,4 @@
   border-radius: 45rpx;
   font-size: 32rpx;
   border: none;
-}`
+}

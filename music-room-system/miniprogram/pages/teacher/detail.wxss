@@ -1,5 +1,4 @@
-// ========== /pages/teacher/detail.wxss ==========
-`.teacher-header {
+.teacher-header {
   display: flex;
   padding: 30rpx;
   background: white;
@@ -215,4 +214,4 @@
   border-radius: 45rpx;
   font-size: 32rpx;
   border: none;
-}`
+}

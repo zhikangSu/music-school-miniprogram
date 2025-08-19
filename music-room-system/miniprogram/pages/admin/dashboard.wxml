@@ -1,5 +1,4 @@
-// ========== /pages/admin/dashboard.wxml ==========
-`<view class="container">
+<view class="container">
   <!-- 统计卡片 -->
   <view class="stats-grid">
     <view class="stat-card">
@@ -89,4 +88,4 @@
   <view class="export-section">
     <button class="export-btn" bindtap="exportData">导出数据报表</button>
   </view>
-</view>`
+</view>

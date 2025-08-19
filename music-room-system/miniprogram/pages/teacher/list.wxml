@@ -1,5 +1,4 @@
-// ========== /pages/teacher/list.wxml ==========
-`<view class="container">
+<view class="container">
   <!-- 筛选栏 -->
   <view class="filter-bar">
     <picker bindchange="changeFilter" value="{{filterIndex}}" range="{{filterOptions}}">
@@ -49,4 +48,4 @@
     <text class="empty-icon">📚</text>
     <text class="empty-text">暂无教师信息</text>
   </view>
-</view>`
+</view>

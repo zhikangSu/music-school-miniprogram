@@ -1,5 +1,4 @@
-// ========== /pages/teacher/detail.wxml ==========
-`<view class="container">
+<view class="container">
   <!-- 教师信息头部 -->
   <view class="teacher-header">
     <image class="teacher-avatar" src="{{teacherInfo.avatar}}"></image>
@@ -76,4 +75,4 @@
   <view class="bottom-bar">
     <button class="book-btn" bindtap="bookCourse">立即预约</button>
   </view>
-</view>`
+</view>

@@ -1,5 +1,4 @@
-// ========== /pages/admin/salary.wxss ==========
-`.month-selector {
+.month-selector {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -150,4 +149,4 @@
   border-radius: 40rpx;
   font-size: 28rpx;
   border: none;
-}`
+}

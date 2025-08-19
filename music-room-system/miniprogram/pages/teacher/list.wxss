@@ -1,5 +1,4 @@
-// ========== /pages/teacher/list.wxss ==========
-`.filter-bar {
+.filter-bar {
   background: white;
   padding: 20rpx 30rpx;
   border-bottom: 1rpx solid #eee;
@@ -139,4 +138,4 @@
 
 .empty-text {
   font-size: 28rpx;
-}`
+}

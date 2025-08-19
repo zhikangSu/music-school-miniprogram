@@ -1,5 +1,4 @@
-// ========== /pages/appointment/list.wxss ==========
-`.tabs {
+.tabs {
   display: flex;
   background: white;
   padding: 0 20rpx;
@@ -159,4 +158,4 @@
 
 .empty-text {
   font-size: 28rpx;
-}`
+}

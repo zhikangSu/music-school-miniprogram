@@ -1,5 +1,4 @@
-// ========== /pages/appointment/list.wxml ==========
-`<view class="container">
+<view class="container">
   <!-- 标签栏 -->
   <view class="tabs">
     <view class="tab-item {{activeTab === index ? 'active' : ''}}" 
@@ -63,4 +62,4 @@
     <text class="empty-icon">📅</text>
     <text class="empty-text">暂无预约记录</text>
   </view>
-</view>`
+</view>

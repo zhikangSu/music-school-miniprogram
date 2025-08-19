@@ -1,5 +1,4 @@
-// ========== /pages/admin/salary.wxml ==========
-`<view class="container">
+<view class="container">
   <!-- 月份选择 -->
   <view class="month-selector">
     <picker mode="date" fields="month" value="{{currentYear}}-{{currentMonth}}" bindchange="bindDateChange">
@@ -47,4 +46,4 @@
     <text class="empty-text">暂无工资数据</text>
     <button class="generate-btn" bindtap="generateSalary">生成工资单</button>
   </view>
-</view>`
+</view>
